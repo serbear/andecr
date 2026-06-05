@@ -4,11 +4,16 @@ namespace andecr.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase
 {
-    private string _greeting = "Добро пожаловать в andecr!";
+    private ViewModelBase _currentScreen = null!;
 
-    public string Greeting
+    public ViewModelBase CurrentScreen
     {
-        get => _greeting;
-        set => this.RaiseAndSetIfChanged(ref _greeting, value);
+        get => _currentScreen;
+        set => this.RaiseAndSetIfChanged(ref _currentScreen, value);
+    }
+
+    public MainWindowViewModel()
+    {
+        _currentScreen = new DeckSelectionViewModel(this);
     }
 }

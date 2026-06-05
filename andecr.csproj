@@ -19,4 +19,16 @@
     <PackageReference Include="Avalonia.Diagnostics" Version="11.3.*"
                       Condition="'$(Configuration)'=='Debug'" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\DeckSelectionView.axaml.cs">
+      <DependentUpon>DeckSelectionView.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\EnglishDeckView.axaml.cs">
+      <DependentUpon>EnglishDeckView.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\EstonianDeckView.axaml.cs">
+      <DependentUpon>EstonianDeckView.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>

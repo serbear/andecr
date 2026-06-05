@@ -1,0 +1,37 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:andecr.ViewModels"
+             x:Class="andecr.Views.DeckSelectionView"
+             x:DataType="vm:DeckSelectionViewModel">
+
+  <Grid RowDefinitions="*,Auto,Auto,Auto,*">
+
+    <TextBlock Grid.Row="1"
+               Text="Выберите колоду"
+               FontSize="28"
+               FontWeight="SemiBold"
+               HorizontalAlignment="Center"
+               Margin="0,0,0,48" />
+
+    <Button Grid.Row="2"
+            Content="🇬🇧  Английский язык"
+            Command="{Binding OpenEnglishCommand}"
+            HorizontalAlignment="Center"
+            HorizontalContentAlignment="Center"
+            Width="280"
+            Height="56"
+            FontSize="18"
+            Margin="0,0,0,16" />
+
+    <Button Grid.Row="3"
+            Content="🇪🇪  Эстонский язык"
+            Command="{Binding OpenEstonianCommand}"
+            HorizontalAlignment="Center"
+            HorizontalContentAlignment="Center"
+            Width="280"
+            Height="56"
+            FontSize="18" />
+
+  </Grid>
+
+</UserControl>

@@ -12,14 +12,6 @@
     <vm:MainWindowViewModel />
   </Design.DataContext>
 
-  <Grid RowDefinitions="Auto,*">
-    <!-- ReSharper disable once Xaml.InvalidType -->
-    <TextBlock Grid.Row="0"
-               Text="{Binding Greeting}"
-               HorizontalAlignment="Center"
-               VerticalAlignment="Center"
-               Margin="0,40"
-               FontSize="24" />
-  </Grid>
+  <ContentControl Content="{Binding CurrentScreen}" />
 
 </Window>
