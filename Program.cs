@@ -1,6 +1,6 @@
 using Avalonia;
 using System;
-using Avalonia.ReactiveUI;
+using ReactiveUI.Avalonia;
 
 namespace andecr;
 
@@ -15,5 +15,9 @@ internal class Program
             .UsePlatformDetect()
             .WithInterFont()
             .LogToTrace()
-            .UseReactiveUI();
+            /*
+             * В ReactiveUI.Avalonia метод UseReactiveUI() принимает Action<ReactiveUIBuilder> и namespace для импорта — Avalonia.ReactiveUI. Но в документации также показан Alternative: Traditional Setup — без RxAppBuilder, что идеально подходит для простого приложения без DI.
+             * Для вашего приложения без DI достаточно передать пустой колбэк.
+             */
+            .UseReactiveUI(_ => { });
 }

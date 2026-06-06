@@ -6,7 +6,27 @@
   <Application.DataTemplates>
     <local:ViewLocator />
   </Application.DataTemplates>
+  
+  <Application.Resources>
+    <ImageBrush x:Key="AppBackground"
+                Source="avares://andecr/Assets/Images/rock_texture.jpg"
+                Stretch="UniformToFill" />
+  </Application.Resources>
+  
   <Application.Styles>
     <FluentTheme />
+    
+    <!-- Фон для всех UserControl (View-ов) -->
+    <Style Selector="UserControl">
+      <Setter Property="Background" 
+              Value="{StaticResource AppBackground}" />
+    </Style>
+
+    <!-- Фон для главного окна -->
+    <Style Selector="Window">
+      <Setter Property="Background" 
+              Value="{StaticResource AppBackground}" />
+    </Style> 
+    
   </Application.Styles>
 </Application>
