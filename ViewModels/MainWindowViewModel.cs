@@ -4,7 +4,7 @@ namespace andecr.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase
 {
-    private ViewModelBase _currentScreen = null!;
+    private ViewModelBase _currentScreen;
 
     public ViewModelBase CurrentScreen
     {
