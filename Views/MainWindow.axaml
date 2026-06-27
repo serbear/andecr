@@ -1,17 +1,30 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:andecr.ViewModels"
+        xmlns:controls="using:andecr.Controls"
         x:Class="andecr.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="andecr"
         Width="1024"
         Height="768"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        TransparencyLevelHint="None"
+        Background="Transparent"
+>
 
   <Design.DataContext>
     <vm:MainWindowViewModel />
   </Design.DataContext>
 
-  <ContentControl Content="{Binding CurrentScreen}" />
+    <Panel>
+       <!-- Set up a background for all controls. -->
+        <controls:TiledBackgroundControl
+            TileImage="{StaticResource TileBitmap}"
+            TileWidth="Auto"
+            TileHeight="Auto"
+        />
+
+        <ContentControl Content="{Binding CurrentScreen}" />
+    </Panel>
 
 </Window>
