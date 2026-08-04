@@ -30,8 +30,11 @@
     <Compile Update="Views\EstonianDeckView.axaml.cs">
       <DependentUpon>EstonianDeckView.axaml</DependentUpon>
     </Compile>
+    <Compile Update="Views\Controls\SideMenuView.axaml.cs">
+      <DependentUpon>SideMenuView.axaml</DependentUpon>
+    </Compile>
   </ItemGroup>
-
+  
   <ItemGroup>
     <!-- Все файлы в Assets/ автоматически -->
     <AvaloniaResource Include="Assets\**" />
