@@ -1,35 +1,52 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:andecr.ViewModels"
+             xmlns:menu="using:andecr.Views.Controls"
              x:Class="andecr.Views.EstonianDeckView"
              x:DataType="vm:EstonianDeckViewModel">
 
-  <Grid RowDefinitions="Auto,*,Auto">
+  <Grid ColumnDefinitions="Auto,*">
 
-    <!-- Header -->
-    <Border Grid.Row="0" Padding="16,12">
-      <Grid ColumnDefinitions="Auto,*">
-        <Button Grid.Column="0"
-                Content="← Назад"
-                Command="{Binding GoBackCommand}"
-                FontSize="14" />
-        <TextBlock Grid.Column="1"
-                   Text="🇪🇪  Эстонский язык"
-                   FontSize="20"
-                   FontWeight="SemiBold"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center" />
-      </Grid>
-    </Border>
+    <!-- Общее боковое меню редактора колоды -->
+    <menu:SideMenuView Grid.Column="0" />
 
-    <!-- Content placeholder -->
-    <TextBlock Grid.Row="1"
-               Text="Здесь будет колода эстонского языка"
-               HorizontalAlignment="Center"
-               VerticalAlignment="Center"
-               FontSize="16"
-               Opacity="0.5" />
+    <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto">
 
+      <!-- Header -->
+      <Border Grid.Row="0" Padding="16,12">
+        <Grid ColumnDefinitions="Auto,*">
+          <Button Grid.Column="0"
+                  Content="← Назад"
+                  Command="{Binding GoBackCommand}"
+                  FontSize="14" />
+          <TextBlock Grid.Column="1"
+                     Text="🇪🇪  Эстонский язык"
+                     FontSize="20"
+                     FontWeight="SemiBold"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center" />
+        </Grid>
+      </Border>
+
+      <!-- Card editor -->
+      <StackPanel Grid.Row="1"
+                  VerticalAlignment="Center"
+                  HorizontalAlignment="Center"
+                  Width="360"
+                  Spacing="8">
+        <TextBlock Text="Слово (эст.)" />
+        <TextBox Text="{Binding Word}" Watermark="Введите слово" />
+
+        <TextBlock Text="Перевод" Margin="0,8,0,0" />
+        <TextBox Text="{Binding Translation}" Watermark="Введите перевод" />
+
+        <TextBlock Text="{Binding Cards.Count, StringFormat='Карточек в колоде: {0}'}"
+                   Opacity="0.6"
+                   Margin="0,16,0,0"
+                   HorizontalAlignment="Center" />
+      </StackPanel>
+
+    </Grid>
   </Grid>
 
 </UserControl>

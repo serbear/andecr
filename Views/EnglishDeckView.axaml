@@ -1,35 +1,135 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:andecr.ViewModels"
+             xmlns:menu="using:andecr.Views.Controls"
              x:Class="andecr.Views.EnglishDeckView"
              x:DataType="vm:EnglishDeckViewModel">
 
-  <Grid RowDefinitions="Auto,*,Auto">
+  <Grid ColumnDefinitions="Auto,*">
 
-    <!-- Header -->
-    <Border Grid.Row="0" Padding="16,12">
-      <Grid ColumnDefinitions="Auto,*">
-        <Button Grid.Column="0"
-                Content="← Назад"
-                Command="{Binding GoBackCommand}"
-                FontSize="14" />
-        <TextBlock Grid.Column="1"
-                   Text="🇬🇧  Английский язык"
-                   FontSize="20"
-                   FontWeight="SemiBold"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center" />
-      </Grid>
-    </Border>
+    <!-- Общее боковое меню редактора колоды -->
+    <menu:SideMenuView Grid.Column="0" />
 
-    <!-- Content placeholder -->
-    <TextBlock Grid.Row="1"
-               Text="Здесь будет колода английского языка"
-               HorizontalAlignment="Center"
-               VerticalAlignment="Center"
-               FontSize="16"
-               Opacity="0.5" />
+    <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto">
 
+      <!-- Header -->
+      <Border Grid.Row="0" Padding="16,12">
+        <Grid ColumnDefinitions="Auto,*">
+          <Button Grid.Column="0"
+                  Content="← Назад"
+                  Command="{Binding GoBackCommand}"
+                  FontSize="14" />
+          <TextBlock Grid.Column="1"
+                     Text="🇬🇧  Английский язык"
+                     FontSize="20"
+                     FontWeight="SemiBold"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center" />
+        </Grid>
+      </Border>
+
+      <!-- Card editor -->
+      <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+        <Grid ColumnDefinitions="360,16,360"
+              HorizontalAlignment="Center"
+              Margin="16">
+
+          <!-- Left column -->
+          <StackPanel Grid.Column="0" Spacing="8">
+
+            <TextBlock Text="Словарная статья" FontWeight="SemiBold" />
+            <TextBox Text="{Binding DictionaryEntry}"
+                     Watermark="Название карточки в списке Anki" />
+
+            <TextBlock Text="Определение" Margin="0,8,0,0" />
+            <TextBox Text="{Binding Definition}"
+                     Watermark="Описание слова из словаря"
+                     AcceptsReturn="True"
+                     TextWrapping="Wrap"
+                     Height="70" />
+
+            <TextBlock Text="Оригинал" Margin="0,8,0,0" />
+            <TextBox Text="{Binding Original}"
+                     Watermark="Контекст использования на английском"
+                     AcceptsReturn="True"
+                     TextWrapping="Wrap"
+                     Height="60" />
+
+            <TextBlock Text="Дословный перевод" Margin="0,8,0,0" />
+            <TextBox Text="{Binding LiteralTranslation}"
+                     Watermark="Дословный перевод контекста"
+                     AcceptsReturn="True"
+                     TextWrapping="Wrap"
+                     Height="60" />
+
+            <TextBlock Text="Литературный перевод" Margin="0,8,0,0" />
+            <TextBox Text="{Binding LiteraryTranslation}"
+                     Watermark="Смысловой перевод оригинала"
+                     AcceptsReturn="True"
+                     TextWrapping="Wrap"
+                     Height="60" />
+
+            <TextBlock Text="Заметки" Margin="0,8,0,0" />
+            <TextBox Text="{Binding Notes}"
+                     Watermark="Произвольные примечания"
+                     AcceptsReturn="True"
+                     TextWrapping="Wrap"
+                     Height="60" />
+
+          </StackPanel>
+
+          <!-- Right column -->
+          <StackPanel Grid.Column="2" Spacing="8">
+
+            <TextBlock Text="Тег" FontWeight="SemiBold" />
+            <ComboBox ItemsSource="{Binding Tags}"
+                      SelectedItem="{Binding Tag}"
+                      PlaceholderText="Смысловая область"
+                      HorizontalAlignment="Stretch" />
+
+            <TextBlock Text="Часть речи" Margin="0,8,0,0" />
+            <ComboBox ItemsSource="{Binding PartsOfSpeech}"
+                      SelectedItem="{Binding PartOfSpeech}"
+                      PlaceholderText="Выберите часть речи"
+                      HorizontalAlignment="Stretch" />
+
+            <TextBlock Text="Маркер" Margin="0,8,0,0" />
+            <ComboBox ItemsSource="{Binding Markers}"
+                      SelectedItem="{Binding Marker}"
+                      PlaceholderText="Стилистическая пометка"
+                      HorizontalAlignment="Stretch" />
+
+            <TextBlock Text="Уровень CEFR" Margin="0,8,0,0" />
+            <ComboBox ItemsSource="{Binding CefrLevels}"
+                      SelectedItem="{Binding CefrLevel}"
+                      PlaceholderText="A1 – C2"
+                      HorizontalAlignment="Stretch" />
+
+            <TextBlock Text="Транскрипция (брит.)" Margin="0,8,0,0" />
+            <TextBox Text="{Binding BritishTranscription}"
+                     Watermark="/brɪˈtɪʃ/" />
+
+            <TextBlock Text="Транскрипция (амер.)" Margin="0,8,0,0" />
+            <TextBox Text="{Binding AmericanTranscription}"
+                     Watermark="/əˈmɛrɪkən/" />
+
+            <TextBlock Text="Звук" Margin="0,8,0,0" />
+            <TextBox Text="{Binding Sound}"
+                     Watermark="Ссылка на звуковой файл" />
+
+          </StackPanel>
+
+        </Grid>
+      </ScrollViewer>
+
+      <!-- Footer -->
+      <Border Grid.Row="2" Padding="16,12">
+        <TextBlock Text="{Binding Cards.Count, StringFormat='Карточек в колоде: {0}'}"
+                   Opacity="0.6"
+                   HorizontalAlignment="Center" />
+      </Border>
+
+    </Grid>
   </Grid>
 
 </UserControl>
