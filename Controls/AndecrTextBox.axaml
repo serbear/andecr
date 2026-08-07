@@ -1,7 +1,9 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:andecr.ViewModels.Controls"
              x:Class="andecr.Controls.AndecrTextBox"
-             x:Name="AndecrTextBoxRoot">
+             x:Name="AndecrTextBoxRoot"
+             x:DataType="vm:IAndecrTextBoxViewModel">
 
     <Grid ColumnDefinitions="Auto,*,*">
         <StackPanel Grid.Column="0"
@@ -20,7 +22,8 @@
                 <ToggleButton IsChecked="{Binding IsFrozen, ElementName=AndecrTextBoxRoot, Mode=TwoWay}">
                     <TextBlock Text="Freeze" />
                 </ToggleButton>
-                <Button>
+                <Button Command="{Binding PasteTextCommand}"
+                        ToolTip.Tip="Paste text from the clipboard into the text field.">
                     <TextBlock Text="Paste" />
                 </Button>
 

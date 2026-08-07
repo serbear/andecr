@@ -1,6 +1,8 @@
+using andecr.ViewModels.Controls;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
+using Avalonia.Input.Platform;
 using Avalonia.Media;
 
 namespace andecr.Controls;
@@ -33,6 +35,8 @@ public partial class AndecrTextBox : UserControl
             nameof(FieldHeight),
             double.NaN);
 
+    // Отдельное имя, т.к. Width уже занят базовым Control (это высота ВНУТРЕННЕГО TextBox,
+    // а не всего UserControl).
     public static readonly StyledProperty<double> FieldWidthProperty =
         AvaloniaProperty.Register<AndecrTextBox, double>(
             nameof(FieldWidth),
@@ -101,5 +105,14 @@ public partial class AndecrTextBox : UserControl
     public AndecrTextBox()
     {
         InitializeComponent();
+        
+        DataContext = new AndecrTextBoxViewModel(
+            getClipboardTextAsync: async () =>
+            {
+                var topLevel = TopLevel.GetTopLevel(this);
+                var clipboard = topLevel?.Clipboard;
+                return clipboard is null ? null : await clipboard.TryGetTextAsync();
+            },
+            setText: pastedText => Text = pastedText);
     }
 }
