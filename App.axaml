@@ -8,7 +8,7 @@
   </Application.DataTemplates>
   
   <Application.Resources>
-    <Bitmap x:Key="TileBitmap">avares://andecr/Assets/Images/forest.jpg</Bitmap>
+    <Bitmap x:Key="TileBitmap">avares://andecr/Assets/Images/cartographer.png</Bitmap>
   </Application.Resources>
   
   <Application.Styles>

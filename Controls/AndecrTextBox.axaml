@@ -1,0 +1,30 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="andecr.Controls.AndecrTextBox"
+             x:Name="AndecrTextBoxRoot">
+
+    <Grid ColumnDefinitions="Auto,*,*">
+        <StackPanel Grid.Column="0"
+                    Grid.ColumnSpan="3"
+                    Orientation="Vertical">
+
+            <TextBlock Text="{Binding Label, ElementName=AndecrTextBoxRoot}" />
+            <StackPanel Orientation="Horizontal">
+
+                <TextBox Text="{Binding Text, ElementName=AndecrTextBoxRoot, Mode=TwoWay}"
+                         PlaceholderText="{Binding Watermark, ElementName=AndecrTextBoxRoot}"
+                         AcceptsReturn="{Binding AcceptsReturn, ElementName=AndecrTextBoxRoot}"
+                         TextWrapping="{Binding TextWrapping, ElementName=AndecrTextBoxRoot}"
+                         Height="{Binding FieldHeight, ElementName=AndecrTextBoxRoot}" 
+                         Width="{Binding FieldWidth, ElementName=AndecrTextBoxRoot}" />
+                <ToggleButton IsChecked="{Binding IsFrozen, ElementName=AndecrTextBoxRoot, Mode=TwoWay}">
+                    <TextBlock Text="Freeze" />
+                </ToggleButton>
+                <Button>
+                    <TextBlock Text="Paste" />
+                </Button>
+
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</UserControl>
