@@ -8,11 +8,13 @@
   <Grid ColumnDefinitions="Auto,*">
 
     <!-- Общее боковое меню редактора колоды -->
+    
     <menu:SideMenuView Grid.Column="0" />
 
     <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto">
 
       <!-- Header -->
+      
       <Border Grid.Row="0" Padding="16,12">
         <Grid ColumnDefinitions="Auto,*">
           <Button Grid.Column="0"
@@ -29,16 +31,20 @@
       </Border>
 
       <!-- Card editor -->
+      
       <StackPanel Grid.Row="1"
                   VerticalAlignment="Center"
                   HorizontalAlignment="Center"
                   Width="360"
                   Spacing="8">
         <TextBlock Text="Слово (эст.)" />
-        <TextBox Text="{Binding Word}" Watermark="Введите слово" />
+        <TextBox Text="{Binding Word}" 
+                 PlaceholderText="Введите слово" />
 
-        <TextBlock Text="Перевод" Margin="0,8,0,0" />
-        <TextBox Text="{Binding Translation}" Watermark="Введите перевод" />
+        <TextBlock Text="Перевод" 
+                   Margin="0,8,0,0" />
+        <TextBox Text="{Binding Translation}" 
+                 PlaceholderText="Введите перевод" />
 
         <TextBlock Text="{Binding Cards.Count, StringFormat='Карточек в колоде: {0}'}"
                    Opacity="0.6"
