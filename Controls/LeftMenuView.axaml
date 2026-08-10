@@ -1,0 +1,91 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:andecr.ViewModels"
+             xmlns:conv="using:Avalonia.Data.Converters"
+             x:Class="andecr.Controls.LeftMenuView"
+             x:DataType="vm:MainWindowViewModel">
+
+    <!--
+    Левое меню главного окна. Устроено симметрично RightMenuView: хостится
+    ОДИН РАЗ в MainWindow и ничего не знает о конкретных экранах — она
+    просто рендерит MainWindowViewModel.LeftMenuItems, которые формирует
+    текущий CurrentScreen через интерфейс IHasLeftMenu.
+
+    Чтобы у нового экрана появилось своё левое меню — см. IHasLeftMenu.cs.
+    Эта разметка при этом не меняется вообще.
+  -->
+
+    <UserControl.Styles>
+        <Style Selector="Button.sideMenuItem">
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="Padding" Value="16,10" />
+            <Setter Property="Margin" Value="8,3" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+        <Style Selector="Button.sideMenuItem:pointerover">
+            <Setter Property="Background" Value="#33FFFFFF" />
+        </Style>
+        <Style Selector="Button.sideMenuItem:pressed">
+            <Setter Property="Background" Value="#55FFFFFF" />
+        </Style>
+        <!-- Активный под-экран (аналог IsChecked у ToggleButton в старой версии) -->
+        <Style Selector="Button.sideMenuItem.active">
+            <Setter Property="Background" Value="#33FFFFFF" />
+        </Style>
+        <Style Selector="Button.sideMenuItem:disabled">
+            <Setter Property="Opacity" Value="0.35" />
+        </Style>
+    </UserControl.Styles>
+
+    <!-- Если у текущего экрана нет меню (не реализует IHasLeftMenu) — прячемся целиком -->
+
+    <Border
+        Width="140"
+        Background="#CC1E1E1E"
+        CornerRadius="0,12,12,0"
+        Padding="0,20" 
+        IsVisible="{Binding LeftMenuItems, Converter={x:Static conv:ObjectConverters.IsNotNull}}">
+        
+        <ItemsControl
+            ItemsSource="{Binding LeftMenuItems}">
+
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel
+                        Orientation="Vertical"
+                        Spacing="2" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+
+            <ItemsControl.ItemTemplate>
+                <DataTemplate
+                    x:DataType="vm:MenuItemViewModel">
+                    <Button
+                        Classes="sideMenuItem"
+                        Classes.active="{Binding IsActive}"
+                        Command="{Binding Command}"
+                        IsEnabled="{Binding IsEnabled}"
+                        ToolTip.Tip="{Binding ToolTip}">
+                        <StackPanel
+                            Orientation="Horizontal"
+                            Spacing="10">
+                            <TextBlock
+                                Text="{Binding Icon}"
+                                FontSize="18"
+                                VerticalAlignment="Center" />
+                            <TextBlock
+                                Text="{Binding Header}"
+                                VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Border>
+
+</UserControl>

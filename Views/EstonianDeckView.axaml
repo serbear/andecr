@@ -1,7 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:andecr.ViewModels"
-             xmlns:menu="using:andecr.Views.Controls"
+             xmlns:controls="clr-namespace:andecr.Controls"
              x:Class="andecr.Views.EstonianDeckView"
              x:DataType="vm:EstonianDeckViewModel">
 
@@ -9,7 +9,7 @@
 
     <!-- Общее боковое меню редактора колоды -->
     
-    <menu:SideMenuView Grid.Column="0" />
+    <controls:LeftMenuView Grid.Column="0" />
 
     <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto">
 

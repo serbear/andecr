@@ -2,22 +2,13 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vm="using:andecr.ViewModels"
-    xmlns:menu="using:andecr.Views.Controls"
     xmlns:controls="using:andecr.Controls"
     x:Class="andecr.Views.EnglishDeckView"
     x:DataType="vm:EnglishDeckViewModel"
     x:Name="EnglishDeckEditorRoot">
 
     <Grid
-        ColumnDefinitions="Auto,*">
-
-        <!-- Общее боковое меню редактора колоды -->
-        <menu:SideMenuView
-            Grid.Column="0" />
-
-        <Grid
-            Grid.Column="1"
-            RowDefinitions="Auto,*,Auto">
+        RowDefinitions="Auto,*,Auto">
 
             <!-- Header -->
             <Border
@@ -234,7 +225,6 @@
                     HorizontalAlignment="Center" />
             </Border>
 
-        </Grid>
     </Grid>
 
 </UserControl>

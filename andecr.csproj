@@ -8,6 +8,7 @@
     <RootNamespace>andecr</RootNamespace>
     <AssemblyName>andecr</AssemblyName>
     <LangVersion>12</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,9 +16,9 @@
     <PackageReference Include="Avalonia.Desktop" Version="12.0.4" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.4" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.4" />
-    <PackageReference Include="Avalonia.Diagnostics" Version="11.3.17"
-                      Condition="'$(Configuration)'=='Debug'" />
+    <PackageReference Include="Avalonia.Diagnostics" Version="11.3.17" Condition="'$(Configuration)'=='Debug'" />
     <PackageReference Include="ReactiveUI.Avalonia" Version="12.0.3" />
+    <PackageReference Include="System.Reactive" Version="6.1.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,9 +31,6 @@
     <Compile Update="Views\EstonianDeckView.axaml.cs">
       <DependentUpon>EstonianDeckView.axaml</DependentUpon>
     </Compile>
-    <Compile Update="Views\Controls\SideMenuView.axaml.cs">
-      <DependentUpon>SideMenuView.axaml</DependentUpon>
-    </Compile>
     <Compile Update="Controls\AndecrPasteBothButton.axaml.cs">
       <DependentUpon>AndecrPasteBothButton.axaml</DependentUpon>
     </Compile>
@@ -42,10 +40,22 @@
     <Compile Update="Views\ConfigView.axaml.cs">
       <DependentUpon>ConfigView.axaml</DependentUpon>
     </Compile>
+    <Compile Update="Controls\RightMenuView.axaml.cs">
+      <DependentUpon>RightMenuView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Controls\LeftMenuView.axaml.cs">
+      <DependentUpon>SideMenuView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   
   <ItemGroup>
     <!-- Все файлы в Assets/ автоматически -->
     <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="Views\Controls\" />
   </ItemGroup>
 </Project>

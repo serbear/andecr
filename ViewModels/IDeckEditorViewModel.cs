@@ -1,41 +1,54 @@
 using System.Reactive;
+using andecr.Controls;
 using ReactiveUI;
 
 namespace andecr.ViewModels;
 
 /// <summary>
-/// Общий контракт для ViewModel'ей редакторов языковых колод (эстонской, английской
-/// и последующих). Реализуя этот интерфейс, каждый редактор автоматически получает
-/// поддержку общего бокового меню <see cref="andecr.Views.Controls.SideMenuView"/>.
+/// Common contract for language deck editor ViewModels (Estonian, English, and subsequent ones).
+/// Implementing this interface automatically provides support for the shared side menu <see cref="LeftMenuView"/>.
 /// </summary>
 public interface IDeckEditorViewModel
 {
-    #region Commands to switch screens
-
+    /// <summary>
+    /// Gets the command to exit the application or current section.
+    /// </summary>
     ReactiveCommand<Unit, Unit> ExitCommand { get; }
+
+    /// <summary>
+    /// Gets the command to open the configuration/settings screen.
+    /// </summary> 
     ReactiveCommand<Unit, Unit> ConfigCommand { get; }
 
-    /// <summary>Перейти на экран выбора колоды.</summary>
+    /// <summary>
+    /// Gets the command to navigate to the deck selection screen.
+    /// </summary>
     ReactiveCommand<Unit, Unit> GoToDecksCommand { get; }
+
+    /// <summary>
+    /// Gets the command to switch to the main editor view.
+    /// </summary> 
     ReactiveCommand<Unit, Unit> EditorCommand { get; }
 
-    #endregion
-
-    #region Commands for the deck editor
-
-    /// <summary>Создать новую карточку — сбросить редактор в исходное состояние.</summary>
+    /// <summary>
+    /// Gets the command to create a new card by resetting the editor to its initial state.
+    /// </summary>
     ReactiveCommand<Unit, Unit> NewCardCommand { get; }
 
-    /// <summary>Сохранить редактируемую карточку в текущую колоду.</summary>
+    /// <summary>
+    /// Gets the command to save the currently edited card to the active deck.
+    /// </summary>
     ReactiveCommand<Unit, Unit> SaveCardCommand { get; }
 
-    #endregion
-
-    #region Flags
-
-    // Флаги состояния для индикации активного экрана (для Toggle/подсветки)
+    /// <summary>
+    /// Gets a value indicating whether the editor screen is currently active.
+    /// Used for toggle states and UI highlighting.
+    /// </summary>
     bool IsEditorActive { get; }
-    bool IsConfigActive { get; }
 
-    #endregion
+    /// <summary>
+    /// Gets a value indicating whether the configuration screen is currently active.
+    /// Used for toggle states and UI highlighting.
+    /// </summary> 
+    bool IsConfigActive { get; }
 }
