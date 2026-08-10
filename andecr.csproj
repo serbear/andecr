@@ -39,6 +39,9 @@
     <Compile Update="Controls\AndecrTextBox.axaml.cs">
       <DependentUpon>AndecrTextBox.axaml</DependentUpon>
     </Compile>
+    <Compile Update="Views\ConfigView.axaml.cs">
+      <DependentUpon>ConfigView.axaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   
   <ItemGroup>

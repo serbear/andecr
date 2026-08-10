@@ -29,10 +29,14 @@ public class EstonianDeckViewModel : ViewModelBase, IDeckEditorViewModel
     public ObservableCollection<EnglishDictionaryCard> Cards { get; } = new();
 
     public ReactiveCommand<Unit, Unit> GoBackCommand { get; }
+    public ReactiveCommand<Unit, Unit> EditorCommand { get; }
     public ReactiveCommand<Unit, Unit> NewCardCommand { get; }
     public ReactiveCommand<Unit, Unit> SaveCardCommand { get; }
+    public bool IsEditorActive => true;
+    public bool IsConfigActive => false;
     public ReactiveCommand<Unit, Unit> GoToDecksCommand => GoBackCommand;
     public ReactiveCommand<Unit, Unit> ExitCommand { get; }
+    public ReactiveCommand<Unit, Unit> ConfigCommand { get; }
 
     public EstonianDeckViewModel(MainWindowViewModel mainVm)
     {

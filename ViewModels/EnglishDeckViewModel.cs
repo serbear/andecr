@@ -138,11 +138,26 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel
     /// <summary>Карточки, уже сохранённые в текущей колоде.</summary>
     public ObservableCollection<EnglishDictionaryCard> Cards { get; } = new();
 
+
+    #region Flasgs
+
+    public bool IsEditorActive => true;
+    public bool IsConfigActive => false;
+
+    #endregion
+
+    #region Commands
+
     public ReactiveCommand<Unit, Unit> GoBackCommand { get; }
     public ReactiveCommand<Unit, Unit> NewCardCommand { get; }
     public ReactiveCommand<Unit, Unit> SaveCardCommand { get; }
     public ReactiveCommand<Unit, Unit> GoToDecksCommand => GoBackCommand;
     public ReactiveCommand<Unit, Unit> ExitCommand { get; }
+    public ReactiveCommand<Unit, Unit> EditorCommand { get; }
+    public ReactiveCommand<Unit, Unit> ConfigCommand { get; }
+
+    #endregion
+    
 
     public EnglishDeckViewModel(MainWindowViewModel mainVm)
     {
@@ -156,7 +171,10 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel
 
         foreach (var marker in TextOptionListLoader.Load("Assets/markers.txt"))
             Markers.Add(marker);
-
+        
+        // Кнопка редактора: остаётся на текущем экране редактора
+        EditorCommand = ReactiveCommand.Create(() => { });
+        
         GoBackCommand = ReactiveCommand.Create(() =>
         {
             _mainVm.CurrentScreen = new DeckSelectionViewModel(_mainVm);
@@ -195,6 +213,10 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel
             {
                 desktop.Shutdown();
             }
+        });
+
+        ConfigCommand = ReactiveCommand.Create(() => {
+            _mainVm.CurrentScreen = new ConfigViewModel(_mainVm);
         });
     }
 

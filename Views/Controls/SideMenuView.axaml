@@ -36,6 +36,20 @@
           Padding="0,20">
     <StackPanel Orientation="Vertical" Spacing="2">
 
+      <ToggleButton Classes="sideMenuItem"
+                    IsChecked="{Binding IsEditorActive, Mode=OneWay}"
+                    Command="{Binding EditorCommand}"
+                    ToolTip.Tip="Редактор колоды">
+        <StackPanel Orientation="Horizontal" 
+                    Spacing="10">
+          <TextBlock Text="[E]" 
+                     FontSize="18" 
+                     VerticalAlignment="Center" />
+          <TextBlock Text="Редактор" 
+                     VerticalAlignment="Center" />
+        </StackPanel>
+      </ToggleButton>
+      
       <Button Classes="sideMenuItem"
               Command="{Binding NewCardCommand}"
               ToolTip.Tip="Новая карточка">
@@ -53,6 +67,20 @@
           <TextBlock Text="Сохранить" VerticalAlignment="Center" />
         </StackPanel>
       </Button>
+      
+      <ToggleButton Classes="sideMenuItem"
+                    IsChecked="{Binding IsConfigActive, Mode=OneWay}"
+                    Command="{Binding ConfigCommand}"
+                    ToolTip.Tip="Перейти на экран редактирования настроек">
+        <StackPanel Orientation="Horizontal" 
+                    Spacing="10">
+          <TextBlock Text="[X]" 
+                     FontSize="18" 
+                     VerticalAlignment="Center" />
+          <TextBlock Text="Настройки" 
+                     VerticalAlignment="Center" />
+        </StackPanel>
+      </ToggleButton>
 
       <Button Classes="sideMenuItem"
               Command="{Binding GoToDecksCommand}"
