@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
 using System.Threading.Tasks;
+using andecr.Services.Text;
 using Avalonia.Input;
 using ReactiveUI;
 
@@ -27,7 +28,13 @@ public class AndecrTextBoxViewModel : ReactiveObject, IAndecrTextBoxViewModel
     /// Callback action to update the text in the view target.
     /// </summary>
     private readonly Action<string?> _setTextAction;
-    
+
+    /// <summary>
+    /// Service that cleans raw clipboard text (hidden formatting characters, redundant whitespace/line
+    /// breaks, control characters) before it is handed to <see cref="_setTextAction"/>.
+    /// </summary>
+    private readonly IClipboardTextSanitizer _sanitizer;
+
     /// <summary>
     /// Backing field for <see cref="CanPasteText"/>.
     /// </summary>
@@ -54,29 +61,38 @@ public class AndecrTextBoxViewModel : ReactiveObject, IAndecrTextBoxViewModel
     /// <param name="getClipboardTextAsync">Delegate returning clipboard text asynchronously.</param>
     /// <param name="getClipboardFormatsAsync">Delegate returning available clipboard formats asynchronously.</param>
     /// <param name="setTextAction">Action invoked to set the pasted text string.</param>
+    /// <param name="sanitizer">
+    /// Service used to clean pasted text before it reaches <paramref name="setTextAction"/>. Defaults to a
+    /// new <see cref="ClipboardTextSanitizer"/> instance when omitted, since the sanitizer is stateless and
+    /// safe to share.
+    /// </param>
     public AndecrTextBoxViewModel(
         Func<Task<string?>> getClipboardTextAsync,
         Func<Task<IReadOnlyList<DataFormat>?>> getClipboardFormatsAsync,
-        Action<string?> setTextAction)
+        Action<string?> setTextAction,
+        IClipboardTextSanitizer? sanitizer = null)
     {
         _getClipboardTextAsync = getClipboardTextAsync;
         _getClipboardFormatsAsync = getClipboardFormatsAsync;
         _setTextAction = setTextAction;
+        _sanitizer = sanitizer ?? new ClipboardTextSanitizer();
 
         var canPaste = this.WhenAnyValue(x => x.CanPasteText);
         PasteTextCommand = ReactiveCommand.CreateFromTask(PasteAsync, canPaste);
     }
     
     /// <summary>
-    /// Executes the paste operation by fetching text from the clipboard provider and applying it via the text callback.
+    /// Executes the paste operation by fetching text from the clipboard provider, cleaning it via
+    /// <see cref="_sanitizer"/>, and applying the result via the text callback.
     /// </summary>
     /// <returns>A task representing the asynchronous operation.</returns>
     private async Task PasteAsync()
     {
         var text = await _getClipboardTextAsync();
-        if (!string.IsNullOrEmpty(text))
+        var cleanedText = _sanitizer.Sanitize(text);
+        if (!string.IsNullOrEmpty(cleanedText))
         {
-            _setTextAction(text);
+            _setTextAction(cleanedText);
         }
     }
 
@@ -99,6 +115,10 @@ public class AndecrTextBoxViewModel : ReactiveObject, IAndecrTextBoxViewModel
         }
 
         var text = await _getClipboardTextAsync();
-        CanPasteText = !string.IsNullOrEmpty(text);
+
+        // Run the same cleanup that PasteAsync applies: clipboard content that consists solely of
+        // control/formatting characters or whitespace should not enable pasting, even though the raw
+        // string is technically non-empty.
+        CanPasteText = !string.IsNullOrEmpty(_sanitizer.Sanitize(text));
     }
 }
