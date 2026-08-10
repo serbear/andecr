@@ -1,3 +1,4 @@
+using System;
 using andecr.ViewModels.Controls;
 using Avalonia;
 using Avalonia.Controls;
@@ -7,72 +8,111 @@ using Avalonia.Media;
 
 namespace andecr.Controls;
 
+/// <summary>
+/// Represents a custom text box control with integrated label, freeze feature, and clipboard paste capabilities.
+/// </summary>
 public partial class AndecrTextBox : UserControl
 {
+    /// <summary>
+    /// Identifies the <see cref="Label"/> styled property.
+    /// </summary>
     public static readonly StyledProperty<string?> LabelProperty =
         AvaloniaProperty.Register<AndecrTextBox, string?>(nameof(Label));
 
+    /// <summary>
+    /// Identifies the <see cref="Text"/> styled property.
+    /// </summary>
     public static readonly StyledProperty<string?> TextProperty =
         AvaloniaProperty.Register<AndecrTextBox, string?>(
             nameof(Text),
             defaultBindingMode: BindingMode.TwoWay);
 
+    /// <summary>
+    /// Identifies the <see cref="Watermark"/> styled property.
+    /// </summary>
     public static readonly StyledProperty<string?> WatermarkProperty =
         AvaloniaProperty.Register<AndecrTextBox, string?>(nameof(Watermark));
 
+    /// <summary>
+    /// Identifies the <see cref="AcceptsReturn"/> styled property.
+    /// </summary>
     public static readonly StyledProperty<bool> AcceptsReturnProperty =
         AvaloniaProperty.Register<AndecrTextBox, bool>(nameof(AcceptsReturn));
 
+    /// <summary>
+    /// Identifies the <see cref="TextWrapping"/> styled property.
+    /// </summary>
     public static readonly StyledProperty<TextWrapping> TextWrappingProperty =
         AvaloniaProperty.Register<AndecrTextBox, TextWrapping>(
             nameof(TextWrapping),
             TextWrapping.NoWrap);
 
-    // Отдельное имя, т.к. Height уже занят базовым Control (это высота ВНУТРЕННЕГО TextBox,
-    // а не всего UserControl).
+    /// <summary>
+    /// Identifies the <see cref="FieldHeight"/> styled property.
+    /// Distinct from <see cref="Visual.Height"/> as it specifically targets the internal input control.
+    /// </summary>
     public static readonly StyledProperty<double> FieldHeightProperty =
         AvaloniaProperty.Register<AndecrTextBox, double>(
             nameof(FieldHeight),
             double.NaN);
 
-    // Отдельное имя, т.к. Width уже занят базовым Control (это высота ВНУТРЕННЕГО TextBox,
-    // а не всего UserControl).
+    /// <summary>
+    /// Identifies the <see cref="FieldWidth"/> styled property.
+    /// Distinct from <see cref="Visual.Width"/> as it specifically targets the internal input control.
+    /// </summary>
     public static readonly StyledProperty<double> FieldWidthProperty =
         AvaloniaProperty.Register<AndecrTextBox, double>(
             nameof(FieldWidth),
             double.NaN);
-    
-    // Состояние кнопки "Freeze". TwoWay по умолчанию, чтобы внешний код мог
-    // и читать, и программно менять состояние заморозки.
+
+    /// <summary>
+    /// Identifies the <see cref="IsFrozen"/> styled property.
+    /// Defaults to <see cref="BindingMode.TwoWay"/>.
+    /// </summary>
     public static readonly StyledProperty<bool> IsFrozenProperty =
         AvaloniaProperty.Register<AndecrTextBox, bool>(
             nameof(IsFrozen),
             defaultBindingMode: BindingMode.TwoWay);
 
+    /// <summary>
+    /// Gets or sets the header or label text displayed above the text input field.
+    /// </summary>
     public string? Label
     {
         get => GetValue(LabelProperty);
         set => SetValue(LabelProperty, value);
     }
 
+    /// <summary>
+    /// Gets or sets the text content entered in the input field.
+    /// </summary>
     public string? Text
     {
         get => GetValue(TextProperty);
         set => SetValue(TextProperty, value);
     }
 
+    /// <summary>
+    /// Gets or sets the placeholder watermark text displayed when the field is empty.
+    /// </summary>
     public string? Watermark
     {
         get => GetValue(WatermarkProperty);
         set => SetValue(WatermarkProperty, value);
     }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether newline characters are inserted when pressing Enter.
+    /// </summary>
     public bool AcceptsReturn
     {
         get => GetValue(AcceptsReturnProperty);
         set => SetValue(AcceptsReturnProperty, value);
     }
 
+    /// <summary>
+    /// Gets or sets how text wraps when it reaches the edge of the input control.
+    /// </summary>
     public TextWrapping TextWrapping
     {
         get => GetValue(TextWrappingProperty);
@@ -80,13 +120,19 @@ public partial class AndecrTextBox : UserControl
     }
 
     /// <summary>
-    /// Высота внутреннего TextBox. По умолчанию NaN (автоматическая высота — для однострочных полей).
+    /// Gets or sets the explicit height of the internal input text box.
+    /// Defaults to <see cref="double.NaN"/> (auto-height).
     /// </summary>
     public double FieldHeight
     {
         get => GetValue(FieldHeightProperty);
         set => SetValue(FieldHeightProperty, value);
     }
+
+    /// <summary>
+    /// Gets or sets the explicit width of the internal input text box.
+    /// Defaults to <see cref="double.NaN"/> (auto-width).
+    /// </summary>
     public double FieldWidth
     {
         get => GetValue(FieldWidthProperty);
@@ -94,7 +140,8 @@ public partial class AndecrTextBox : UserControl
     }
 
     /// <summary>
-    /// Заморожено ли поле (кнопка Freeze нажата). Пока true — TextBox доступен только для чтения.
+    /// Gets or sets a value indicating whether the input field is frozen (the data in the input field does not clear
+    /// on a new vocabulary card creation).
     /// </summary>
     public bool IsFrozen
     {
@@ -102,10 +149,24 @@ public partial class AndecrTextBox : UserControl
         set => SetValue(IsFrozenProperty, value);
     }
 
+    /// <summary>
+    /// Gets the strongly-typed view model attached as the current DataContext.
+    /// </summary> 
+    private AndecrTextBoxViewModel ViewModel => (AndecrTextBoxViewModel)DataContext!;
+
+    /// <summary>
+    /// Holds a reference to the active window subscription to ensure clean unsubscription upon removal from
+    /// the visual tree.
+    /// </summary>
+    private WindowBase? _subscribedWindow;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AndecrTextBox"/> class.
+    /// </summary>
     public AndecrTextBox()
     {
         InitializeComponent();
-        
+
         DataContext = new AndecrTextBoxViewModel(
             getClipboardTextAsync: async () =>
             {
@@ -113,6 +174,79 @@ public partial class AndecrTextBox : UserControl
                 var clipboard = topLevel?.Clipboard;
                 return clipboard is null ? null : await clipboard.TryGetTextAsync();
             },
-            setText: pastedText => Text = pastedText);
+            getClipboardFormatsAsync: async () =>
+            {
+                var topLevel = TopLevel.GetTopLevel(this);
+                var clipboard = topLevel?.Clipboard;
+                if (clipboard is null)
+                {
+                    return null;
+                }
+
+                try
+                {
+                    return await clipboard.GetDataFormatsAsync();
+                }
+                catch (NotSupportedException)
+                {
+                    // Some backends (e.g., Avalonia on Web, specific Linux builds) may not support format enumeration.
+                    // In this case, we simply assume that "the format is unknown" — a fallback check via
+                    // TryGetTextAsync in RefreshClipboardStateAsync will handle it later.
+                    return null;
+                }
+            },
+            setTextAction: pastedText => Text = pastedText);
+    }
+
+    /// <summary>
+    /// Handles attachment to the visual tree, subscribing to window activation events and evaluating initial
+    /// clipboard state.
+    /// </summary>
+    /// <param name="e">Event args describing visual tree attachment.</param> 
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+
+        // Activated is defined in WindowBase, not in TopLevel: on desktop, TopLevel.GetTopLevel(...) usually returns a
+        // Window (which derives from WindowBase), but on single-view host platforms (Android/iOS/Browser), it might be
+        // a plain TopLevel without focus-based activation — in that case, we simply don't subscribe and rely on the
+        // initial check below.
+        if (TopLevel.GetTopLevel(this) is WindowBase window)
+        {
+            _subscribedWindow = window;
+            window.Activated += Window_OnActivated;
+        }
+
+        // Initial check upon adding the control to the tree — in case the clipboard already contains data and
+        // the window hasn't become active since launch.
+        _ = ViewModel.RefreshClipboardStateAsync();
+    }
+
+    /// <summary>
+    /// Handles detachment from the visual tree, unsubscribing from window events to prevent memory leaks.
+    /// </summary>
+    /// <param name="e">Event args describing visual tree detachment.</param>
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        if (_subscribedWindow is not null)
+        {
+            _subscribedWindow.Activated -= Window_OnActivated;
+            _subscribedWindow = null;
+        }
+
+        base.OnDetachedFromVisualTree(e);
+    }
+
+    /// <summary>
+    /// Event handler invoked when the parent window gains focus, triggering a clipboard state update.
+    /// </summary>
+    /// <param name="sender">Event sender.</param>
+    /// <param name="e">Event arguments.</param>
+    private void Window_OnActivated(object? sender, EventArgs e)
+    {
+        // The user might have copied text in another app while our window was inactive.
+        // Refocusing is the only reliable yet cheap way to detect this without constantly polling the clipboard with a
+        // timer (Avalonia lacks a "ClipboardChanged" event).
+        _ = ViewModel.RefreshClipboardStateAsync();
     }
 }

@@ -23,6 +23,7 @@
                     <TextBlock Text="Freeze" />
                 </ToggleButton>
                 <Button Command="{Binding PasteTextCommand}"
+                        IsEnabled="{Binding CanPasteText}"
                         ToolTip.Tip="Paste text from the clipboard into the text field.">
                     <TextBlock Text="Paste" />
                 </Button>
