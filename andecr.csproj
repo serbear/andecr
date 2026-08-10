@@ -33,6 +33,12 @@
     <Compile Update="Views\Controls\SideMenuView.axaml.cs">
       <DependentUpon>SideMenuView.axaml</DependentUpon>
     </Compile>
+    <Compile Update="Controls\AndecrPasteBothButton.axaml.cs">
+      <DependentUpon>AndecrPasteBothButton.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Controls\AndecrTextBox.axaml.cs">
+      <DependentUpon>AndecrTextBox.axaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   
   <ItemGroup>

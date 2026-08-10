@@ -1,4 +1,5 @@
 using System;
+using System.Windows.Input;
 using andecr.ViewModels.Controls;
 using Avalonia;
 using Avalonia.Controls;
@@ -150,6 +151,24 @@ public partial class AndecrTextBox : UserControl
     }
 
     /// <summary>
+    /// Identifies the <see cref="CanPasteText"/> styled property.
+    /// </summary>
+    public static readonly StyledProperty<bool> CanPasteTextProperty =
+        AvaloniaProperty.Register<AndecrTextBox, bool>(nameof(CanPasteText));
+
+    /// <summary>
+    /// Gets a value indicating whether non-empty text is currently available in the clipboard to be pasted.
+    /// Mirrors the internal <see cref="AndecrTextBoxViewModel.CanPasteText"/> so external controls (e.g.
+    /// <see cref="AndecrPasteBothButton"/>) can observe and bind to it without accessing the private
+    /// <see cref="ViewModel"/>.
+    /// </summary>
+    public bool CanPasteText
+    {
+        get => GetValue(CanPasteTextProperty);
+        private set => SetValue(CanPasteTextProperty, value);
+    }
+
+    /// <summary>
     /// Gets the strongly-typed view model attached as the current DataContext.
     /// </summary> 
     private AndecrTextBoxViewModel ViewModel => (AndecrTextBoxViewModel)DataContext!;
@@ -167,7 +186,7 @@ public partial class AndecrTextBox : UserControl
     {
         InitializeComponent();
 
-        DataContext = new AndecrTextBoxViewModel(
+        var viewModel = new AndecrTextBoxViewModel(
             getClipboardTextAsync: async () =>
             {
                 var topLevel = TopLevel.GetTopLevel(this);
@@ -196,6 +215,37 @@ public partial class AndecrTextBox : UserControl
                 }
             },
             setTextAction: pastedText => Text = pastedText);
+
+        // Mirror the view model's CanPasteText into our own public StyledProperty so external controls can
+        // observe it (e.g. via ElementName bindings) without needing access to the private ViewModel.
+        CanPasteText = viewModel.CanPasteText;
+        viewModel.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName == nameof(AndecrTextBoxViewModel.CanPasteText))
+            {
+                CanPasteText = viewModel.CanPasteText;
+            }
+        };
+
+        DataContext = viewModel;
+    }
+
+    /// <summary>
+    /// Executes the underlying paste command, pasting clipboard text into this control's text field.
+    /// Intended for external callers (e.g. <see cref="AndecrPasteBothButton"/>) that need to trigger a paste
+    /// without direct access to the private <see cref="ViewModel"/>. Does nothing if pasting is not currently
+    /// available (see <c>CanPasteText</c>).
+    /// </summary>
+    public void PasteText()
+    {
+        // ReactiveCommand's own public CanExecute is an IObservable<bool> (used for IsEnabled bindings), not a
+        // method — the actual ICommand.CanExecute/Execute are implemented explicitly, so we must go through the
+        // ICommand interface to call them.
+        var command = (ICommand)ViewModel.PasteTextCommand;
+        if (command.CanExecute(null))
+        {
+            command.Execute(null);
+        }
     }
 
     /// <summary>

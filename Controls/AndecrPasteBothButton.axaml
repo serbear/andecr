@@ -1,0 +1,23 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="using:Avalonia.Data.Converters"
+             x:Class="andecr.Controls.AndecrPasteBothButton"
+             x:Name="AndecrPasteBothButtonRoot">
+
+    <Button Content="Paste Both"
+            Click="PasteBothButton_OnClick"
+            ToolTip.Tip="Вставить текст из буфера обмена сразу в оба связанных поля.">
+        <Button.IsEnabled>
+            <MultiBinding Converter="{x:Static conv:BoolConverters.And}">
+                <Binding Path="FirstTextBox.CanPasteText" 
+                         ElementName="AndecrPasteBothButtonRoot" 
+                         FallbackValue="False" />
+                <Binding Path="SecondTextBox.CanPasteText" 
+                         ElementName="AndecrPasteBothButtonRoot" 
+                         FallbackValue="False" />
+            </MultiBinding>
+        </Button.IsEnabled>
+    </Button>
+
+</UserControl>
+

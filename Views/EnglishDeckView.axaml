@@ -90,15 +90,29 @@
                                       SelectedItem="{Binding CefrLevel}"
                                       PlaceholderText="A1 – C2"
                                       HorizontalAlignment="Stretch" />
+                            
+                            <StackPanel Orientation="Horizontal" >
+                                
+                                <StackPanel Orientation="Vertical">
+                                    
+                                    <controls:AndecrTextBox Label="Транскрипция (брит.)"
+                                                            Text="{Binding BritishTranscription}" 
+                                                            FieldWidth="400"
+                                                            Name="UkTranscription"/>
 
-                            <controls:AndecrTextBox Label="Транскрипция (брит.)"
-                                                    Text="{Binding BritishTranscription}" 
-                                                    FieldWidth="400"/>
-
-                            <controls:AndecrTextBox Label="Транскрипция (амер.)"
-                                                    Text="{Binding AmericanTranscription}" 
-                                                    FieldWidth="400"/>
-
+                                    <controls:AndecrTextBox Label="Транскрипция (амер.)"
+                                                            Text="{Binding AmericanTranscription}" 
+                                                            FieldWidth="400"
+                                                            Name="UsTranscription"/>
+                                </StackPanel>
+                               
+                                <controls:AndecrPasteBothButton FirstTextBox="{Binding #UkTranscription}"
+                                                                SecondTextBox="{Binding #UsTranscription}"
+                                                                VerticalAlignment="Center"
+                                                                Margin="8,0,0,0" />
+                                
+                            </StackPanel>
+                            
                             <controls:AndecrTextBox Label="Звук"
                                                     Text="{Binding Sound}"
                                                     Watermark="Ссылка на звуковой файл" 
