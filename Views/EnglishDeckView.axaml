@@ -49,7 +49,7 @@
                                 Label="Словарная статья"
                                 Text="{Binding DictionaryEntry}"
                                 Watermark="Название карточки в списке Anki"
-                                FieldWidth="600" />
+                                FieldWidth="400" />
 
                             <controls:AndecrTextBox
                                 Label="Определение"
@@ -58,7 +58,7 @@
                                 AcceptsReturn="True"
                                 TextWrapping="Wrap"
                                 FieldHeight="70"
-                                FieldWidth="600" />
+                                FieldWidth="400" />
 
                         </StackPanel>
                     </ScrollViewer>
@@ -167,7 +167,7 @@
                                 AcceptsReturn="True"
                                 TextWrapping="Wrap"
                                 FieldHeight="60"
-                                FieldWidth="600" />
+                                FieldWidth="400" />
                             <controls:AndecrTextBox
                                 Label="Дословный перевод"
                                 Text="{Binding LiteralTranslation}"
@@ -175,7 +175,7 @@
                                 AcceptsReturn="True"
                                 TextWrapping="Wrap"
                                 FieldHeight="60"
-                                FieldWidth="600" />
+                                FieldWidth="400" />
                             <controls:AndecrTextBox
                                 Label="Литературный перевод"
                                 Text="{Binding LiteraryTranslation}"
@@ -183,7 +183,7 @@
                                 AcceptsReturn="True"
                                 TextWrapping="Wrap"
                                 FieldHeight="60"
-                                FieldWidth="600" />
+                                FieldWidth="400" />
 
                         </StackPanel>
                     </ScrollViewer>
@@ -208,7 +208,7 @@
                                 AcceptsReturn="True"
                                 TextWrapping="Wrap"
                                 FieldHeight="160"
-                                FieldWidth="600" />
+                                FieldWidth="400" />
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>

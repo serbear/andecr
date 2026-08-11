@@ -54,8 +54,4 @@
     <!-- Все файлы в Assets/ автоматически -->
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="Views\Controls\" />
-  </ItemGroup>
 </Project>
