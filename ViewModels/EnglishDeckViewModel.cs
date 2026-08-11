@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Reactive;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -13,6 +14,8 @@ namespace andecr.ViewModels;
 /// </summary>
 public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRightMenu, IHasLeftMenu
 {
+
+    
     /// <summary>
     /// A fixed list of CEFR levels (not loaded from a file).
     /// </summary>
@@ -326,13 +329,16 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
         // Кнопка редактора: остаётся на текущем экране редактора
         EditorCommand = ReactiveCommand.Create(() => { });
 
-        GoBackCommand = ReactiveCommand.Create(() => { _mainVm.CurrentScreen = new DeckSelectionViewModel(_mainVm); });
+        GoBackCommand = ReactiveCommand.Create(() =>
+        {
+            _mainVm.CurrentScreen = new DeckSelectionViewModel(_mainVm);
+        });
 
         NewCardCommand = ReactiveCommand.Create(ResetEditor);
 
         SaveCardCommand = ReactiveCommand.Create(() =>
         {
-            if (string.IsNullOrWhiteSpace(DictionaryEntry))
+            if (!ValidateBeforeSave())
                 return;
 
             Cards.Add(new EnglishDictionaryCard
@@ -375,7 +381,7 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
             Header = "Сохранить",
             ToolTip = "Сохранить карточку в колоду",
             Command = SaveCardCommand,
-            IsEnabled = false
+            IsEnabled = true 
         };
         _rightMenuItems.Add(_saveMenuItem);
 
@@ -386,10 +392,6 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
             ToolTip = "Новая карточка",
             Command = NewCardCommand
         });
-
-        // Держим "Сохранить" синхронизированным с полем DictionaryEntry.
-        this.WhenAnyValue(x => x.DictionaryEntry)
-            .Subscribe(entry => _saveMenuItem.IsEnabled = !string.IsNullOrWhiteSpace(entry));
 
         // --- Левое меню этого экрана (навигация между под-экранами редактора) ---
         // IsActive проставляется один раз при создании: IsEditorActive/IsConfigActive
@@ -448,5 +450,20 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
         CefrLevel = string.Empty;
         Sound = string.Empty;
         Notes = string.Empty;
+    }
+
+    private bool ValidateBeforeSave()
+    {
+        Console.WriteLine("validation");
+        var (isValid, missing) = ValidationHelper.ValidateRequiredFields([
+            (nameof(DictionaryEntry), DictionaryEntry),
+            (nameof(Definition), Definition),
+            (nameof(Original), Original)
+        ]);
+        
+        // [DEBUG]
+        Console.WriteLine(isValid);
+
+        return isValid;
     }
 }

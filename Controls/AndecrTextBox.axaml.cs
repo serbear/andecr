@@ -171,7 +171,11 @@ public partial class AndecrTextBox : UserControl
     /// <summary>
     /// Gets the strongly-typed view model attached as the current DataContext.
     /// </summary> 
-    private AndecrTextBoxViewModel ViewModel => (AndecrTextBoxViewModel)DataContext!;
+    // private AndecrTextBoxViewModel ViewModel => (AndecrTextBoxViewModel)DataContext!;
+    
+    private readonly AndecrTextBoxViewModel _viewModel;
+
+    private AndecrTextBoxViewModel ViewModel => _viewModel;
 
     /// <summary>
     /// Holds a reference to the active window subscription to ensure clean unsubscription upon removal from
@@ -216,6 +220,9 @@ public partial class AndecrTextBox : UserControl
             },
             setTextAction: pastedText => Text = pastedText);
 
+        _viewModel = viewModel; 
+        
+        
         // Mirror the view model's CanPasteText into our own public StyledProperty so external controls can
         // observe it (e.g. via ElementName bindings) without needing access to the private ViewModel.
         CanPasteText = viewModel.CanPasteText;
@@ -226,8 +233,9 @@ public partial class AndecrTextBox : UserControl
                 CanPasteText = viewModel.CanPasteText;
             }
         };
-
-        DataContext = viewModel;
+        
+        // DataContext = viewModel;
+        InternalRoot.DataContext = viewModel;
     }
 
     /// <summary>
