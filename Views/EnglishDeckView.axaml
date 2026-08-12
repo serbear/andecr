@@ -47,13 +47,13 @@
 
                             <controls:AndecrTextBox
                                 Label="Словарная статья"
-                                Text="{Binding DictionaryEntry}"
+                                Text="{Binding [DictionaryEntry]}"
                                 Watermark="Название карточки в списке Anki"
                                 FieldWidth="400" />
 
                             <controls:AndecrTextBox
                                 Label="Определение"
-                                Text="{Binding Definition}"
+                                Text="{Binding [Definition]}"
                                 Watermark="Описание слова из словаря"
                                 AcceptsReturn="True"
                                 TextWrapping="Wrap"
@@ -81,7 +81,7 @@
                                 FontWeight="SemiBold" />
                             <ComboBox
                                 ItemsSource="{Binding Tags}"
-                                SelectedItem="{Binding Tag}"
+                                SelectedItem="{Binding [Tag]}"
                                 PlaceholderText="Смысловая область"
                                 HorizontalAlignment="Stretch" />
 
@@ -90,7 +90,7 @@
                                 Margin="0,8,0,0" />
                             <ComboBox
                                 ItemsSource="{Binding PartsOfSpeech}"
-                                SelectedItem="{Binding PartOfSpeech}"
+                                SelectedItem="{Binding [PartOfSpeech]}"
                                 PlaceholderText="Выберите часть речи"
                                 HorizontalAlignment="Stretch" />
 
@@ -99,7 +99,7 @@
                                 Margin="0,8,0,0" />
                             <ComboBox
                                 ItemsSource="{Binding Markers}"
-                                SelectedItem="{Binding Marker}"
+                                SelectedItem="{Binding [Marker]}"
                                 PlaceholderText="Стилистическая пометка"
                                 HorizontalAlignment="Stretch" />
 
@@ -108,7 +108,7 @@
                                 Margin="0,8,0,0" />
                             <ComboBox
                                 ItemsSource="{Binding CefrLevels}"
-                                SelectedItem="{Binding CefrLevel}"
+                                SelectedItem="{Binding [CefrLevel]}"
                                 PlaceholderText="A1 – C2"
                                 HorizontalAlignment="Stretch" />
 
@@ -120,12 +120,12 @@
 
                                     <controls:AndecrTextBox
                                         Label="Транскрипция (брит.)"
-                                        Text="{Binding BritishTranscription}"
+                                        Text="{Binding [BritishTranscription]}"
                                         FieldWidth="400"
                                         Name="UkTranscription" />
                                     <controls:AndecrTextBox
                                         Label="Транскрипция (амер.)"
-                                        Text="{Binding AmericanTranscription}"
+                                        Text="{Binding [AmericanTranscription]}"
                                         FieldWidth="400"
                                         Name="UsTranscription" />
                                 </StackPanel>
@@ -140,7 +140,7 @@
 
                             <controls:AndecrTextBox
                                 Label="Звук"
-                                Text="{Binding Sound}"
+                                Text="{Binding [Sound]}"
                                 Watermark="Ссылка на звуковой файл"
                                 FieldWidth="400" />
 
@@ -162,7 +162,7 @@
 
                             <controls:AndecrTextBox
                                 Label="Оригинал"
-                                Text="{Binding Original}"
+                                Text="{Binding [Original]}"
                                 Watermark="Контекст использования на английском"
                                 AcceptsReturn="True"
                                 TextWrapping="Wrap"
@@ -170,7 +170,7 @@
                                 FieldWidth="400" />
                             <controls:AndecrTextBox
                                 Label="Дословный перевод"
-                                Text="{Binding LiteralTranslation}"
+                                Text="{Binding [LiteralTranslation]}"
                                 Watermark="Дословный перевод контекста"
                                 AcceptsReturn="True"
                                 TextWrapping="Wrap"
@@ -178,7 +178,7 @@
                                 FieldWidth="400" />
                             <controls:AndecrTextBox
                                 Label="Литературный перевод"
-                                Text="{Binding LiteraryTranslation}"
+                                Text="{Binding [LiteraryTranslation]}"
                                 Watermark="Смысловой перевод оригинала"
                                 AcceptsReturn="True"
                                 TextWrapping="Wrap"
@@ -203,7 +203,7 @@
 
                             <controls:AndecrTextBox
                                 Label="Заметки"
-                                Text="{Binding Notes}"
+                                Text="{Binding [Notes]}"
                                 Watermark="Произвольные примечания"
                                 AcceptsReturn="True"
                                 TextWrapping="Wrap"

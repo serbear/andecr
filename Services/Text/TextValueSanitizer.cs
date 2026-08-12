@@ -23,7 +23,7 @@ namespace andecr.Services.Text;
 /// </item>
 /// </list>
 /// </remarks>
-public sealed class ClipboardTextSanitizer : IClipboardTextSanitizer
+public sealed class TextValueSanitizer : IClipboardTextSanitizer
 {
     /// <summary>
     /// Matches runs of two or more consecutive regular spaces or tabs, used to collapse "extra" spaces

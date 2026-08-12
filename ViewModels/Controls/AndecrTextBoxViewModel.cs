@@ -63,7 +63,7 @@ public class AndecrTextBoxViewModel : ReactiveObject, IAndecrTextBoxViewModel
     /// <param name="setTextAction">Action invoked to set the pasted text string.</param>
     /// <param name="sanitizer">
     /// Service used to clean pasted text before it reaches <paramref name="setTextAction"/>. Defaults to a
-    /// new <see cref="ClipboardTextSanitizer"/> instance when omitted, since the sanitizer is stateless and
+    /// new <see cref="TextValueSanitizer"/> instance when omitted, since the sanitizer is stateless and
     /// safe to share.
     /// </param>
     public AndecrTextBoxViewModel(
@@ -75,7 +75,7 @@ public class AndecrTextBoxViewModel : ReactiveObject, IAndecrTextBoxViewModel
         _getClipboardTextAsync = getClipboardTextAsync;
         _getClipboardFormatsAsync = getClipboardFormatsAsync;
         _setTextAction = setTextAction;
-        _sanitizer = sanitizer ?? new ClipboardTextSanitizer();
+        _sanitizer = sanitizer ?? new TextValueSanitizer();
 
         var canPaste = this.WhenAnyValue(x => x.CanPasteText);
         PasteTextCommand = ReactiveCommand.CreateFromTask(PasteAsync, canPaste);

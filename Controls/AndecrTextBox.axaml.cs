@@ -1,5 +1,6 @@
 using System;
 using System.Windows.Input;
+using andecr.Services;
 using andecr.ViewModels.Controls;
 using Avalonia;
 using Avalonia.Controls;
@@ -172,7 +173,6 @@ public partial class AndecrTextBox : UserControl
     /// Gets the strongly-typed view model attached as the current DataContext.
     /// </summary> 
     // private AndecrTextBoxViewModel ViewModel => (AndecrTextBoxViewModel)DataContext!;
-    
     private readonly AndecrTextBoxViewModel _viewModel;
 
     private AndecrTextBoxViewModel ViewModel => _viewModel;
@@ -191,38 +191,14 @@ public partial class AndecrTextBox : UserControl
         InitializeComponent();
 
         var viewModel = new AndecrTextBoxViewModel(
-            getClipboardTextAsync: async () =>
-            {
-                var topLevel = TopLevel.GetTopLevel(this);
-                var clipboard = topLevel?.Clipboard;
-                return clipboard is null ? null : await clipboard.TryGetTextAsync();
-            },
-            getClipboardFormatsAsync: async () =>
-            {
-                var topLevel = TopLevel.GetTopLevel(this);
-                var clipboard = topLevel?.Clipboard;
-                if (clipboard is null)
-                {
-                    return null;
-                }
+            getClipboardTextAsync: async () => await Clipboard.GetTextAsync(this),
+            getClipboardFormatsAsync: async () => await Clipboard.GetFormatAsync(this),
+            setTextAction: pastedText => Text = pastedText
+        );
 
-                try
-                {
-                    return await clipboard.GetDataFormatsAsync();
-                }
-                catch (NotSupportedException)
-                {
-                    // Some backends (e.g., Avalonia on Web, specific Linux builds) may not support format enumeration.
-                    // In this case, we simply assume that "the format is unknown" — a fallback check via
-                    // TryGetTextAsync in RefreshClipboardStateAsync will handle it later.
-                    return null;
-                }
-            },
-            setTextAction: pastedText => Text = pastedText);
+        _viewModel = viewModel;
 
-        _viewModel = viewModel; 
-        
-        
+
         // Mirror the view model's CanPasteText into our own public StyledProperty so external controls can
         // observe it (e.g. via ElementName bindings) without needing access to the private ViewModel.
         CanPasteText = viewModel.CanPasteText;
@@ -233,7 +209,7 @@ public partial class AndecrTextBox : UserControl
                 CanPasteText = viewModel.CanPasteText;
             }
         };
-        
+
         // DataContext = viewModel;
         InternalRoot.DataContext = viewModel;
     }

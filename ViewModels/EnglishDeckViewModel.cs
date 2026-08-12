@@ -6,16 +6,58 @@ using Avalonia.Controls.ApplicationLifetimes;
 using ReactiveUI;
 using andecr.Models;
 using andecr.Services;
+using andecr.Services.Text;
 
 namespace andecr.ViewModels;
+
+/// <summary>
+/// Names of the editable text/selection fields of the card editor.
+/// Used as keys into <see cref="EnglishDeckViewModel"/>'s indexer,
+/// replacing what used to be 13 separate properties with their own backing fields.
+/// </summary>
+public static class CardField
+{
+    public const string DictionaryEntry = "DictionaryEntry";
+    public const string Definition = "Definition";
+    public const string Tag = "Tag";
+    public const string LiteralTranslation = "LiteralTranslation";
+    public const string Original = "Original";
+    public const string LiteraryTranslation = "LiteraryTranslation";
+    public const string PartOfSpeech = "PartOfSpeech";
+    public const string BritishTranscription = "BritishTranscription";
+    public const string AmericanTranscription = "AmericanTranscription";
+    public const string Marker = "Marker";
+    public const string CefrLevel = "CefrLevel";
+    public const string Sound = "Sound";
+    public const string Notes = "Notes";
+
+    /// <summary>
+    /// All field keys, in the order they are present in the export file record.
+    /// In this order, the data will be concatenated into a string to be inserted into the collection export file.
+    /// </summary>
+    public static readonly IReadOnlyList<string> All =
+    [
+        DictionaryEntry,
+        Definition,
+        Tag,
+        LiteraryTranslation,
+        LiteralTranslation,
+        Original,
+        AmericanTranscription,
+        BritishTranscription,
+        PartOfSpeech,
+        Marker,
+        CefrLevel,
+        Sound,
+        Notes
+    ];
+}
 
 /// <summary>
 /// View model for managing and editing an English deck and its cards.
 /// </summary>
 public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRightMenu, IHasLeftMenu
 {
-
-    
     /// <summary>
     /// A fixed list of CEFR levels (not loaded from a file).
     /// </summary>
@@ -30,185 +72,32 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
     private readonly MainWindowViewModel _mainVm;
 
     /// <summary>
-    /// Backing field for the dictionary definition.
+    /// Storage for all editable card field values (Definition, Tag, DictionaryEntry, etc.),
+    /// keyed by <see cref="CardField"/>. Replaces the previous 13 individual properties with
+    /// their own backing fields.
     /// </summary>
-    private string _definition = string.Empty;
+    private readonly Dictionary<string, string> _fields =
+        CardField.All.ToDictionary(key => key, _ => string.Empty);
 
     /// <summary>
-    /// Gets or sets the definition describing the target word or expression from the dictionary.
+    /// Gets or sets the value of a card field identified by one of the <see cref="CardField"/> keys.
+    /// Bound from AXAML via the indexer syntax, e.g. <c>{Binding [Definition]}</c>.
     /// </summary>
-    public string Definition
+    /// <param name="field">One of the <see cref="CardField"/> constants.</param>
+    public string this[string field]
     {
-        get => _definition;
-        set => this.RaiseAndSetIfChanged(ref _definition, value);
-    }
+        get => _fields.TryGetValue(field, out var value) ? value : string.Empty;
+        set
+        {
+            if (_fields.TryGetValue(field, out var current) && current == value)
+                return;
 
-    /// <summary>
-    /// Backing field for the semantic domain/tag.
-    /// </summary>
-    private string _tag = string.Empty;
+            _fields[field] = new TextValueSanitizer().Sanitize(value);
 
-    /// <summary>
-    /// Gets or sets the tag representing the semantic domain of the word selected from a fixed list.
-    /// </summary>
-    public string Tag
-    {
-        get => _tag;
-        set => this.RaiseAndSetIfChanged(ref _tag, value);
-    }
-
-    /// <summary>
-    /// Backing field for the dictionary entry title.
-    /// </summary>
-    private string _dictionaryEntry = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the dictionary entry title used as the card title in Anki.
-    /// </summary>
-    public string DictionaryEntry
-    {
-        get => _dictionaryEntry;
-        set => this.RaiseAndSetIfChanged(ref _dictionaryEntry, value);
-    }
-
-    /// <summary>
-    /// Backing field for the literal translation.
-    /// </summary>
-    private string _literalTranslation = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the literal translation of the context sentence.
-    /// </summary>
-    public string LiteralTranslation
-    {
-        get => _literalTranslation;
-        set => this.RaiseAndSetIfChanged(ref _literalTranslation, value);
-    }
-
-    /// <summary>
-    /// Backing field for the original target language context.
-    /// </summary>
-    private string _original = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the original sentence/context in the target language.
-    /// </summary>
-    public string Original
-    {
-        get => _original;
-        set => this.RaiseAndSetIfChanged(ref _original, value);
-    }
-
-    /// <summary>
-    /// Backing field for the literary translation.
-    /// </summary>
-    private string _literaryTranslation = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the natural (literary) translation of the original context.
-    /// </summary>
-    public string LiteraryTranslation
-    {
-        get => _literaryTranslation;
-        set => this.RaiseAndSetIfChanged(ref _literaryTranslation, value);
-    }
-
-    /// <summary>
-    /// Backing field for the part of speech.
-    /// </summary>
-    private string _partOfSpeech = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the part of speech selected from a fixed list.
-    /// </summary>
-    public string PartOfSpeech
-    {
-        get => _partOfSpeech;
-        set => this.RaiseAndSetIfChanged(ref _partOfSpeech, value);
-    }
-
-    /// <summary>
-    /// Backing field for the British English transcription.
-    /// </summary>
-    private string _britishTranscription = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the British English phonetic transcription.
-    /// </summary>
-    public string BritishTranscription
-    {
-        get => _britishTranscription;
-        set => this.RaiseAndSetIfChanged(ref _britishTranscription, value);
-    }
-
-    /// <summary>
-    /// Backing field for the American English transcription.
-    /// </summary>
-    private string _americanTranscription = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the American English phonetic transcription.
-    /// </summary>
-    public string AmericanTranscription
-    {
-        get => _americanTranscription;
-        set => this.RaiseAndSetIfChanged(ref _americanTranscription, value);
-    }
-
-    /// <summary>
-    /// Backing field for the usage marker.
-    /// </summary>
-    private string _marker = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the usage marker (e.g., slang, archaic, formal) selected from a fixed list.
-    /// </summary>
-    public string Marker
-    {
-        get => _marker;
-        set => this.RaiseAndSetIfChanged(ref _marker, value);
-    }
-
-    /// <summary>
-    /// Backing field for the CEFR language level.
-    /// </summary>
-    private string _cefrLevel = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the CEFR level (A1–C2).
-    /// </summary>
-    public string CefrLevel
-    {
-        get => _cefrLevel;
-        set => this.RaiseAndSetIfChanged(ref _cefrLevel, value);
-    }
-
-    /// <summary>
-    /// Backing field for the sound file path or reference.
-    /// </summary>
-    private string _sound = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the audio path/reference for the word's pronunciation.
-    /// </summary>
-    public string Sound
-    {
-        get => _sound;
-        set => this.RaiseAndSetIfChanged(ref _sound, value);
-    }
-
-    /// <summary>
-    /// Backing field for custom user notes.
-    /// </summary>
-    private string _notes = string.Empty;
-
-    /// <summary>
-    /// Gets or sets any additional arbitrary notes.
-    /// </summary>
-    public string Notes
-    {
-        get => _notes;
-        set => this.RaiseAndSetIfChanged(ref _notes, value);
+            // Standard indexer change-notification convention (mirrors ObservableCollection / WPF-style indexers):
+            // Avalonia's binding engine listens for "Item[<key>]" to refresh exactly the bindings pointed at that key.
+            this.RaisePropertyChanged($"Item[{field}]");
+        }
     }
 
     /// <summary>
@@ -223,7 +112,7 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
 
     /// <summary>
     /// Gets the collection of available markers, loaded from Assets/Markers.txt.
-    /// </summary>>
+    /// </summary>
     public ObservableCollection<string> Markers { get; } = [];
 
     /// <summary>
@@ -243,7 +132,7 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
 
     /// <summary>
     /// Gets a value indicating whether the configuration view is currently active.
-    /// </summary> 
+    /// </summary>
     public bool IsConfigActive => false;
 
     /// <summary>
@@ -253,32 +142,32 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
 
     /// <summary>
     /// Gets the command to clear input fields and start creating a new card.
-    /// </summary> 
+    /// </summary>
     public ReactiveCommand<Unit, Unit> NewCardCommand { get; }
 
     /// <summary>
     /// Gets the command to save the current card input into the deck.
-    /// </summary> 
+    /// </summary>
     public ReactiveCommand<Unit, Unit> SaveCardCommand { get; }
 
     /// <summary>
     /// Gets the command to navigate back to the deck selection screen. Alias for <see cref="GoBackCommand"/>.
-    /// </summary> 
+    /// </summary>
     public ReactiveCommand<Unit, Unit> GoToDecksCommand => GoBackCommand;
 
     /// <summary>
     /// Gets the command to shut down the application.
-    /// </summary> 
+    /// </summary>
     public ReactiveCommand<Unit, Unit> ExitCommand { get; }
 
     /// <summary>
     /// Gets the command to switch the editor view.
-    /// </summary> 
+    /// </summary>
     public ReactiveCommand<Unit, Unit> EditorCommand { get; }
 
     /// <summary>
     /// Gets the command to navigate to the settings screen.
-    /// </summary> 
+    /// </summary>
     public ReactiveCommand<Unit, Unit> ConfigCommand { get; }
 
     /// <summary>
@@ -338,25 +227,40 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
 
         SaveCardCommand = ReactiveCommand.Create(() =>
         {
-            if (!ValidateBeforeSave())
-                return;
-
-            Cards.Add(new EnglishDictionaryCard
+            if (!ValidateRequiredFieldsBeforeSave())
             {
-                Definition = Definition.Trim(),
-                Tag = Tag,
-                DictionaryEntry = DictionaryEntry.Trim(),
-                LiteralTranslation = LiteralTranslation.Trim(),
-                Original = Original.Trim(),
-                LiteraryTranslation = LiteraryTranslation.Trim(),
-                PartOfSpeech = PartOfSpeech,
-                BritishTranscription = BritishTranscription.Trim(),
-                AmericanTranscription = AmericanTranscription.Trim(),
-                Marker = Marker,
-                CefrLevel = CefrLevel,
-                Sound = Sound.Trim(),
-                Notes = Notes.Trim()
-            });
+                Debug.WriteLine("Required fields are not fulfilled.");
+                return;
+            }
+
+            // Concatenate the vocabulary card field data in a string and copy to the clipboard
+            var exportFileRecordString = Services.DeckExport.DeckExport.CreateDeckRecord(_fields);
+            try
+            {
+                _ = Clipboard.CopyTextAsync(exportFileRecordString);
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+                throw;
+            } 
+            
+            // Cards.Add(new EnglishDictionaryCard
+            // {
+            //     Definition = this[CardField.Definition].Trim(),
+            //     Tag = this[CardField.Tag],
+            //     DictionaryEntry = this[CardField.DictionaryEntry].Trim(),
+            //     LiteralTranslation = this[CardField.LiteralTranslation].Trim(),
+            //     Original = this[CardField.Original].Trim(),
+            //     LiteraryTranslation = this[CardField.LiteraryTranslation].Trim(),
+            //     PartOfSpeech = this[CardField.PartOfSpeech],
+            //     BritishTranscription = this[CardField.BritishTranscription].Trim(),
+            //     AmericanTranscription = this[CardField.AmericanTranscription].Trim(),
+            //     Marker = this[CardField.Marker],
+            //     CefrLevel = this[CardField.CefrLevel],
+            //     Sound = this[CardField.Sound].Trim(),
+            //     Notes = this[CardField.Notes].Trim()
+            // });
 
             ResetEditor();
         });
@@ -381,7 +285,7 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
             Header = "Сохранить",
             ToolTip = "Сохранить карточку в колоду",
             Command = SaveCardCommand,
-            IsEnabled = true 
+            IsEnabled = true
         };
         _rightMenuItems.Add(_saveMenuItem);
 
@@ -437,33 +341,17 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
     /// </summary>
     private void ResetEditor()
     {
-        Definition = string.Empty;
-        Tag = string.Empty;
-        DictionaryEntry = string.Empty;
-        LiteralTranslation = string.Empty;
-        Original = string.Empty;
-        LiteraryTranslation = string.Empty;
-        PartOfSpeech = string.Empty;
-        BritishTranscription = string.Empty;
-        AmericanTranscription = string.Empty;
-        Marker = string.Empty;
-        CefrLevel = string.Empty;
-        Sound = string.Empty;
-        Notes = string.Empty;
+        foreach (var field in CardField.All)
+            this[field] = string.Empty;
     }
 
-    private bool ValidateBeforeSave()
+    private bool ValidateRequiredFieldsBeforeSave()
     {
-        Console.WriteLine("validation");
-        var (isValid, missing) = ValidationHelper.ValidateRequiredFields([
-            (nameof(DictionaryEntry), DictionaryEntry),
-            (nameof(Definition), Definition),
-            (nameof(Original), Original)
+        var (isValid, _) = ValidationHelper.ValidateRequiredFields([
+            (CardField.DictionaryEntry,  new TextValueSanitizer().Sanitize(this[CardField.DictionaryEntry])),
+            (CardField.Definition, new TextValueSanitizer().Sanitize(this[CardField.Definition])),
+            (CardField.Original, new TextValueSanitizer().Sanitize(this[CardField.Original]))
         ]);
-        
-        // [DEBUG]
-        Console.WriteLine(isValid);
-
         return isValid;
     }
 }
