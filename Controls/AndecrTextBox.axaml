@@ -28,7 +28,8 @@
                     Height="{Binding FieldHeight, ElementName=AndecrTextBoxRoot}"
                     Width="{Binding FieldWidth, ElementName=AndecrTextBoxRoot}" />
                 <ToggleButton
-                    IsChecked="{Binding IsFrozen, ElementName=AndecrTextBoxRoot, Mode=TwoWay}">
+                    IsChecked="{Binding IsFrozen, ElementName=AndecrTextBoxRoot, Mode=TwoWay}"
+                    IsVisible="{Binding ShowFreezeButton, ElementName=AndecrTextBoxRoot, Mode=TwoWay}">
                     <TextBlock
                         Text="Freeze" />
                 </ToggleButton>

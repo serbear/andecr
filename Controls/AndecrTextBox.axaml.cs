@@ -75,7 +75,27 @@ public partial class AndecrTextBox : UserControl
         AvaloniaProperty.Register<AndecrTextBox, bool>(
             nameof(IsFrozen),
             defaultBindingMode: BindingMode.TwoWay);
-
+    
+    /// <summary>
+    /// Identifies the <see cref="IsFreezeButtonHidden"/> styled property.
+    /// Defaults to <see cref="BindingMode.TwoWay"/>.
+    /// </summary>
+    public static readonly StyledProperty<bool> ShowFreezeButtonProperty =
+        AvaloniaProperty.Register<AndecrTextBox, bool>(
+            nameof(ShowFreezeButton),
+            true,
+            defaultBindingMode: BindingMode.TwoWay);
+    
+    /// <summary>
+    /// Gets or sets a value indicating whether the Freeze button shown or not.
+    /// </summary>
+    public bool ShowFreezeButton
+    {
+        get => GetValue(ShowFreezeButtonProperty);
+        set => SetValue(ShowFreezeButtonProperty, value);
+    }
+    
+    
     /// <summary>
     /// Gets or sets the header or label text displayed above the text input field.
     /// </summary>

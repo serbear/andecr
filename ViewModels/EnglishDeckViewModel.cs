@@ -67,11 +67,6 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
     ];
 
     /// <summary>
-    /// Reference to the main window view model.
-    /// </summary>
-    private readonly MainWindowViewModel _mainVm;
-
-    /// <summary>
     /// Storage for all editable card field values (Definition, Tag, DictionaryEntry, etc.),
     /// keyed by <see cref="CardField"/>. Replaces the previous 13 individual properties with
     /// their own backing fields.
@@ -80,111 +75,10 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
         CardField.All.ToDictionary(key => key, _ => string.Empty);
 
     /// <summary>
-    /// Gets or sets the value of a card field identified by one of the <see cref="CardField"/> keys.
-    /// Bound from AXAML via the indexer syntax, e.g. <c>{Binding [Definition]}</c>.
+    /// Storage for all editable card field 'IsFrozen' states.
     /// </summary>
-    /// <param name="field">One of the <see cref="CardField"/> constants.</param>
-    public string this[string field]
-    {
-        get => _fields.TryGetValue(field, out var value) ? value : string.Empty;
-        set
-        {
-            if (_fields.TryGetValue(field, out var current) && current == value)
-                return;
-
-            _fields[field] = new TextValueSanitizer().Sanitize(value);
-
-            // Standard indexer change-notification convention (mirrors ObservableCollection / WPF-style indexers):
-            // Avalonia's binding engine listens for "Item[<key>]" to refresh exactly the bindings pointed at that key.
-            this.RaisePropertyChanged($"Item[{field}]");
-        }
-    }
-
-    /// <summary>
-    /// Gets the collection of available tags, loaded from Assets/tags.txt.
-    /// </summary>
-    public ObservableCollection<string> Tags { get; } = [];
-
-    /// <summary>
-    /// Gets the collection of available parts of speech, loaded from Assets/parts_of_speech.txt.
-    /// </summary>
-    public ObservableCollection<string> PartsOfSpeech { get; } = [];
-
-    /// <summary>
-    /// Gets the collection of available markers, loaded from Assets/Markers.txt.
-    /// </summary>
-    public ObservableCollection<string> Markers { get; } = [];
-
-    /// <summary>
-    /// Gets the collection of available CEFR levels (A1, A2, B1, B2, C1, C2).
-    /// </summary>
-    public ObservableCollection<string> CefrLevels { get; } = new(CefrLevelValues);
-
-    /// <summary>
-    /// Gets the collection of cards currently saved in the deck.
-    /// </summary>
-    public ObservableCollection<EnglishDictionaryCard> Cards { get; } = [];
-
-    /// <summary>
-    /// Gets a value indicating whether the editor view is currently active.
-    /// </summary>
-    public bool IsEditorActive => true;
-
-    /// <summary>
-    /// Gets a value indicating whether the configuration view is currently active.
-    /// </summary>
-    public bool IsConfigActive => false;
-
-    /// <summary>
-    /// Gets the command to navigate back to the deck selection screen.
-    /// </summary>
-    public ReactiveCommand<Unit, Unit> GoBackCommand { get; }
-
-    /// <summary>
-    /// Gets the command to clear input fields and start creating a new card.
-    /// </summary>
-    public ReactiveCommand<Unit, Unit> NewCardCommand { get; }
-
-    /// <summary>
-    /// Gets the command to save the current card input into the deck.
-    /// </summary>
-    public ReactiveCommand<Unit, Unit> SaveCardCommand { get; }
-
-    /// <summary>
-    /// Gets the command to navigate back to the deck selection screen. Alias for <see cref="GoBackCommand"/>.
-    /// </summary>
-    public ReactiveCommand<Unit, Unit> GoToDecksCommand => GoBackCommand;
-
-    /// <summary>
-    /// Gets the command to shut down the application.
-    /// </summary>
-    public ReactiveCommand<Unit, Unit> ExitCommand { get; }
-
-    /// <summary>
-    /// Gets the command to switch the editor view.
-    /// </summary>
-    public ReactiveCommand<Unit, Unit> EditorCommand { get; }
-
-    /// <summary>
-    /// Gets the command to navigate to the settings screen.
-    /// </summary>
-    public ReactiveCommand<Unit, Unit> ConfigCommand { get; }
-
-    /// <summary>
-    /// Holds a reference to the "Save" menu item to dynamically toggle its enabled state independently.
-    /// </summary>
-    private readonly MenuItemViewModel _saveMenuItem;
-
-    /// <summary>
-    /// Collection of right-hand menu items representing editor actions (e.g., Save, New).
-    /// Used via explicit interface implementation to prevent collision with <see cref="IHasLeftMenu.MenuItems"/>.
-    /// </summary>
-    private readonly ObservableCollection<MenuItemViewModel> _rightMenuItems = [];
-
-    /// <summary>
-    /// Gets the items displayed in the right menu.
-    /// </summary>
-    ObservableCollection<MenuItemViewModel> IHasRightMenu.MenuItems => _rightMenuItems;
+    private readonly Dictionary<string, bool> _frozenStates = 
+        CardField.All.ToDictionary(key => key, _ => false);
 
     /// <summary>
     /// Collection of left-hand menu items representing main navigation (e.g., Editor, Settings, Decks, Exit).
@@ -193,9 +87,20 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
     private readonly ObservableCollection<MenuItemViewModel> _leftMenuItems = [];
 
     /// <summary>
-    /// Gets the items displayed in the left menu.
+    /// Reference to the main window view model.
     /// </summary>
-    ObservableCollection<MenuItemViewModel> IHasLeftMenu.MenuItems => _leftMenuItems;
+    private readonly MainWindowViewModel _mainVm;
+
+    /// <summary>
+    /// Collection of right-hand menu items representing editor actions (e.g., Save, New).
+    /// Used via explicit interface implementation to prevent collision with <see cref="IHasLeftMenu.MenuItems"/>.
+    /// </summary>
+    private readonly ObservableCollection<MenuItemViewModel> _rightMenuItems = [];
+
+    /// <summary>
+    /// Holds a reference to the "Save" menu item to dynamically toggle its enabled state independently.
+    /// </summary>
+    private readonly MenuItemViewModel _saveMenuItem;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="EnglishDeckViewModel"/> class, loading option lists,
@@ -229,7 +134,7 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
         {
             if (!ValidateRequiredFieldsBeforeSave())
             {
-                Debug.WriteLine("Required fields are not fulfilled.");
+                Console.WriteLine("Required fields are not fulfilled.");
                 return;
             }
 
@@ -241,7 +146,7 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
             }
             catch (Exception e)
             {
-                Debug.WriteLine(e);
+                Console.WriteLine(e);
                 throw;
             } 
             
@@ -336,13 +241,147 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
         });
     }
 
+    // Метод для проверки IsFrozen
+    public bool IsFieldFrozen(string field)
+    {
+        return _frozenStates.TryGetValue(field, out var frozen) && frozen;
+    }
+
+// Метод для установки IsFrozen (будет вызываться из XAML через привязку)
+    public void SetFieldFrozen(string field, bool isFrozen)
+    {
+        if (_frozenStates.TryGetValue(field, out var current) && current == isFrozen)
+            return;
+    
+        _frozenStates[field] = isFrozen;
+        this.RaisePropertyChanged();
+    } 
+    
     /// <summary>
-    /// Resets all input controls in the card editor to their default empty states.
+    /// Gets or sets the value of a card field identified by one of the <see cref="CardField"/> keys.
+    /// Bound from AXAML via the indexer syntax, e.g. <c>{Binding [Definition]}</c>.
+    /// </summary>
+    /// <param name="field">One of the <see cref="CardField"/> constants.</param>
+    public string this[string field]
+    {
+        get => _fields.TryGetValue(field, out var value) ? value : string.Empty;
+        set
+        {
+            
+            if (_fields.TryGetValue(field, out var current) && current == value)
+                return;
+
+            _fields[field] = new TextValueSanitizer().Sanitize(value);
+
+            this.RaisePropertyChanged();
+        }
+    }
+    public bool this[string field, bool isFrozen]
+    {
+        get => _frozenStates.TryGetValue(field, out var value) && value;
+        set
+        {
+            if (_frozenStates.TryGetValue(field, out var current) && current == value)
+                return;
+
+            _frozenStates[field] = value;
+            this.RaisePropertyChanged();
+        }
+    } 
+    
+    /// <summary>
+    /// Gets the collection of available tags, loaded from Assets/tags.txt.
+    /// </summary>
+    public ObservableCollection<string> Tags { get; } = [];
+
+    /// <summary>
+    /// Gets the collection of available parts of speech, loaded from Assets/parts_of_speech.txt.
+    /// </summary>
+    public ObservableCollection<string> PartsOfSpeech { get; } = [];
+
+    /// <summary>
+    /// Gets the collection of available markers, loaded from Assets/Markers.txt.
+    /// </summary>
+    public ObservableCollection<string> Markers { get; } = [];
+
+    /// <summary>
+    /// Gets the collection of available CEFR levels (A1, A2, B1, B2, C1, C2).
+    /// </summary>
+    public ObservableCollection<string> CefrLevels { get; } = new(CefrLevelValues);
+
+    /// <summary>
+    /// Gets the collection of cards currently saved in the deck.
+    /// </summary>
+    public ObservableCollection<EnglishDictionaryCard> Cards { get; } = [];
+
+    /// <summary>
+    /// Gets the command to navigate back to the deck selection screen.
+    /// </summary>
+    public ReactiveCommand<Unit, Unit> GoBackCommand { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether the editor view is currently active.
+    /// </summary>
+    public bool IsEditorActive => true;
+
+    /// <summary>
+    /// Gets a value indicating whether the configuration view is currently active.
+    /// </summary>
+    public bool IsConfigActive => false;
+
+    /// <summary>
+    /// Gets the command to clear input fields and start creating a new card.
+    /// </summary>
+    public ReactiveCommand<Unit, Unit> NewCardCommand { get; }
+
+    /// <summary>
+    /// Gets the command to save the current card input into the deck.
+    /// </summary>
+    public ReactiveCommand<Unit, Unit> SaveCardCommand { get; }
+
+    /// <summary>
+    /// Gets the command to navigate back to the deck selection screen. Alias for <see cref="GoBackCommand"/>.
+    /// </summary>
+    public ReactiveCommand<Unit, Unit> GoToDecksCommand => GoBackCommand;
+
+    /// <summary>
+    /// Gets the command to shut down the application.
+    /// </summary>
+    public ReactiveCommand<Unit, Unit> ExitCommand { get; }
+
+    /// <summary>
+    /// Gets the command to switch the editor view.
+    /// </summary>
+    public ReactiveCommand<Unit, Unit> EditorCommand { get; }
+
+    /// <summary>
+    /// Gets the command to navigate to the settings screen.
+    /// </summary>
+    public ReactiveCommand<Unit, Unit> ConfigCommand { get; }
+
+    /// <summary>
+    /// Gets the items displayed in the left menu.
+    /// </summary>
+    ObservableCollection<MenuItemViewModel> IHasLeftMenu.MenuItems => _leftMenuItems;
+
+    /// <summary>
+    /// Gets the items displayed in the right menu.
+    /// </summary>
+    ObservableCollection<MenuItemViewModel> IHasRightMenu.MenuItems => _rightMenuItems;
+
+    /// <summary>
+    /// Resets input controls in the card editor to their default empty states.
+    /// If an input control is in "frozen" state, it will not be cleaned.
     /// </summary>
     private void ResetEditor()
     {
         foreach (var field in CardField.All)
-            this[field] = string.Empty;
+        {
+            if (!IsFieldFrozen(field))
+            {
+                this[field] = string.Empty;
+            }
+        }
     }
 
     private bool ValidateRequiredFieldsBeforeSave()
