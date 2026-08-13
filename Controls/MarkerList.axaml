@@ -23,7 +23,7 @@
                     x:Name="MarkerComboBox"
                     PlaceholderText="Стилистическая пометка"
                     HorizontalAlignment="Stretch"
-                    ItemsSource="{Binding MarkerItems, ElementName=MarkerListRoot}"
+                    ItemsSource="{Binding AvailableMarkers}"
                     SelectedItem="{Binding SelectedMarkerToAdd, Mode=TwoWay}" />
 
                 <Button Command="{Binding AddMarkerCommand}">

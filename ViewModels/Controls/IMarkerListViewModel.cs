@@ -18,6 +18,28 @@ public interface IMarkerListViewModel
     /// </summary>
     /// <value>A collection of marker strings.</value>
     ObservableCollection<string> SelectedMarkers { get; }
+
+    /// <summary>
+    /// Gets the observable collection of markers available for selection (i.e. not yet added to
+    /// <see cref="SelectedMarkers"/>).
+    /// </summary>
+    /// <value>A collection of marker strings not currently selected.</value>
+    /// <remarks>
+    /// Intended as the binding source for the "add marker" dropdown. Automatically kept in sync:
+    /// a marker is removed from this collection when added to <see cref="SelectedMarkers"/>, and
+    /// restored when removed from it.
+    /// </remarks>
+    ObservableCollection<string> AvailableMarkers { get; }
+
+    /// <summary>
+    /// Replaces the full pool of markers that can be selected.
+    /// </summary>
+    /// <param name="markers">The complete set of markers available to this control, in display order.</param>
+    /// <remarks>
+    /// Resets <see cref="AvailableMarkers"/> to the given set, excluding any markers already present in
+    /// <see cref="SelectedMarkers"/>. Call this whenever the source list of markers changes.
+    /// </remarks>
+    void SetAvailableMarkers(IEnumerable<string> markers);
     
     /// <summary>
     /// Gets the current markers as a comma-separated string.

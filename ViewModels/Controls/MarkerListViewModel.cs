@@ -22,6 +22,12 @@ public class MarkerListViewModel : ReactiveObject, IMarkerListViewModel
     private string? _selectedMarkerToAdd;
 
     /// <summary>
+    /// The full pool of markers available to this control, in the order they should be displayed.
+    /// Used to restore removed markers to <see cref="AvailableMarkers"/> at the correct position.
+    /// </summary>
+    private readonly List<string> _markerOrder = [];
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="MarkerListViewModel"/> class.
     /// </summary>
     /// <remarks>
@@ -39,11 +45,18 @@ public class MarkerListViewModel : ReactiveObject, IMarkerListViewModel
                 return;
 
             SelectedMarkers.Add(marker);
+            AvailableMarkers.Remove(marker);
+
+            // Clear the dropdown selection since the previously selected item is no longer available.
+            SelectedMarkerToAdd = null;
         });
     }
 
     /// <inheritdoc/>
     public ObservableCollection<string> SelectedMarkers { get; } = [];
+
+    /// <inheritdoc/>
+    public ObservableCollection<string> AvailableMarkers { get; } = [];
 
     /// <inheritdoc/>
     public string MarkersString
@@ -68,11 +81,56 @@ public class MarkerListViewModel : ReactiveObject, IMarkerListViewModel
     /// <param name="marker">The marker string to remove. Must not be null.</param>
     /// <remarks>
     /// Called by the view when a marker chip's remove button is clicked.
-    /// No-op if the marker is not present in the collection.
+    /// No-op if the marker is not present in the collection. If removed, the marker is restored to
+    /// <see cref="AvailableMarkers"/> at its original position.
     /// </remarks>
     public void RemoveMarker(string marker)
     {
-        SelectedMarkers.Remove(marker);
+        if (SelectedMarkers.Remove(marker))
+            RestoreAvailableMarker(marker);
+    }
+
+    /// <inheritdoc/>
+    public void SetAvailableMarkers(IEnumerable<string> markers)
+    {
+        _markerOrder.Clear();
+        _markerOrder.AddRange(markers);
+
+        AvailableMarkers.Clear();
+        foreach (var marker in _markerOrder)
+        {
+            if (!SelectedMarkers.Contains(marker))
+                AvailableMarkers.Add(marker);
+        }
+    }
+
+    /// <summary>
+    /// Re-inserts a marker into <see cref="AvailableMarkers"/> at the position matching its place in
+    /// <see cref="_markerOrder"/>.
+    /// </summary>
+    /// <param name="marker">The marker to restore.</param>
+    /// <remarks>
+    /// Falls back to appending at the end if the marker is not part of the known marker order
+    /// (e.g. it was added dynamically and never registered via <see cref="SetAvailableMarkers"/>).
+    /// </remarks>
+    private void RestoreAvailableMarker(string marker)
+    {
+        var orderIndex = _markerOrder.IndexOf(marker);
+        if (orderIndex < 0)
+        {
+            AvailableMarkers.Add(marker);
+            return;
+        }
+
+        var insertAt = AvailableMarkers.Count;
+        for (var i = 0; i < AvailableMarkers.Count; i++)
+        {
+            if (_markerOrder.IndexOf(AvailableMarkers[i]) <= orderIndex) continue;
+            insertAt = i;
+            break;
+        }
+
+        AvailableMarkers.Insert(insertAt, marker);
     }
 
     /// <summary>
