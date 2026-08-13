@@ -42,11 +42,15 @@
     </Compile>
     <Compile Update="Controls\RightMenuView.axaml.cs">
       <DependentUpon>RightMenuView.axaml</DependentUpon>
-      <SubType>Code</SubType>
     </Compile>
     <Compile Update="Controls\LeftMenuView.axaml.cs">
       <DependentUpon>SideMenuView.axaml</DependentUpon>
-      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Controls\MarkerItem.axaml.cs">
+      <DependentUpon>MarkerItem.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Controls\MarkerList.axaml.cs">
+      <DependentUpon>MarkerList.axaml</DependentUpon>
     </Compile>
   </ItemGroup>
   

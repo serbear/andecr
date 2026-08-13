@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reactive;
-using System.Threading.Tasks;
 using andecr.Services.Text;
 using Avalonia.Input;
 using ReactiveUI;

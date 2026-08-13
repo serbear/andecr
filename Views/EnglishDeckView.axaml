@@ -8,15 +8,15 @@
     x:DataType="vm:EnglishDeckViewModel"
     x:Name="EnglishDeckEditorRoot">
 
-    <Grid
-        RowDefinitions="Auto,*,Auto">
+    <Grid RowDefinitions="Auto,*,Auto">
 
         <!-- Header -->
         <Border
             Grid.Row="0"
             Padding="16,12">
-            <Grid
-                ColumnDefinitions="*,*">
+
+            <Grid ColumnDefinitions="*,*">
+
                 <TextBlock
                     Grid.Column="0"
                     Text="Английский язык"
@@ -25,6 +25,7 @@
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center" />
             </Grid>
+
         </Border>
 
         <!-- Card editor -->
@@ -36,11 +37,9 @@
 
             <!-- Вкладка Term -->
 
-            <TabItem
-                Header="Термин">
+            <TabItem Header="Термин">
 
-                <ScrollViewer
-                    VerticalScrollBarVisibility="Auto">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
 
                     <StackPanel
                         Spacing="8"
@@ -59,20 +58,20 @@
                             AcceptsReturn="True"
                             TextWrapping="Wrap"
                             FieldHeight="70"
-                            FieldWidth="400" 
-                            ShowFreezeButton="False"/>
+                            FieldWidth="400"
+                            ShowFreezeButton="False" />
 
                     </StackPanel>
+
                 </ScrollViewer>
+
             </TabItem>
 
             <!-- Вкладка Properties -->
 
-            <TabItem
-                Header="Свойства">
+            <TabItem Header="Свойства">
 
-                <ScrollViewer
-                    VerticalScrollBarVisibility="Auto">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
 
                     <StackPanel
                         Spacing="8"
@@ -99,11 +98,11 @@
                         <TextBlock
                             Text="Маркер"
                             Margin="0,8,0,0" />
-                        <ComboBox
-                            ItemsSource="{Binding Markers}"
-                            SelectedItem="{Binding [Marker]}"
-                            PlaceholderText="Стилистическая пометка"
-                            HorizontalAlignment="Stretch" />
+
+                        <controls:MarkerList
+                            HorizontalAlignment="Left"
+                            MarkerItems="{Binding Markers}"
+                            MarkersString="{Binding [Marker], Mode=OneWayToSource}" />
 
                         <TextBlock
                             Text="Уровень CEFR"
@@ -114,19 +113,16 @@
                             PlaceholderText="A1 – C2"
                             HorizontalAlignment="Stretch" />
 
-                        <StackPanel
-                            Orientation="Horizontal">
+                        <StackPanel Orientation="Horizontal">
 
-                            <StackPanel
-                                Orientation="Vertical">
+                            <StackPanel Orientation="Vertical">
 
                                 <controls:AndecrTextBox
                                     behaviors:FrozenBehavior.FieldName="BritishTranscription"
                                     Label="Транскрипция (брит.)"
                                     Text="{Binding [BritishTranscription]}"
                                     FieldWidth="400"
-                                    Name="UkTranscription" 
-                                    />
+                                    Name="UkTranscription" />
                                 <controls:AndecrTextBox
                                     behaviors:FrozenBehavior.FieldName="AmericanTranscription"
                                     Label="Транскрипция (амер.)"
@@ -156,11 +152,9 @@
 
             <!-- Вкладка Context -->
 
-            <TabItem
-                Header="Контекст">
+            <TabItem Header="Контекст">
 
-                <ScrollViewer
-                    VerticalScrollBarVisibility="Auto">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
 
                     <StackPanel
                         Spacing="8"
@@ -173,8 +167,8 @@
                             AcceptsReturn="True"
                             TextWrapping="Wrap"
                             FieldHeight="60"
-                            FieldWidth="400" 
-                            ShowFreezeButton="False"/>
+                            FieldWidth="400"
+                            ShowFreezeButton="False" />
                         <controls:AndecrTextBox
                             Label="Дословный перевод"
                             Text="{Binding [LiteralTranslation]}"
@@ -183,7 +177,7 @@
                             TextWrapping="Wrap"
                             FieldHeight="60"
                             FieldWidth="400"
-                            ShowFreezeButton="False"/>
+                            ShowFreezeButton="False" />
                         <controls:AndecrTextBox
                             Label="Литературный перевод"
                             Text="{Binding [LiteraryTranslation]}"
@@ -192,7 +186,7 @@
                             TextWrapping="Wrap"
                             FieldHeight="60"
                             FieldWidth="400"
-                            ShowFreezeButton="False"/>
+                            ShowFreezeButton="False" />
 
                     </StackPanel>
                 </ScrollViewer>
@@ -200,11 +194,9 @@
 
             <!-- Вкладка Notes -->
 
-            <TabItem
-                Header="Заметки">
+            <TabItem Header="Заметки">
 
-                <ScrollViewer
-                    VerticalScrollBarVisibility="Auto">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
 
                     <StackPanel
                         Spacing="8"
@@ -217,11 +209,15 @@
                             AcceptsReturn="True"
                             TextWrapping="Wrap"
                             FieldHeight="160"
-                            FieldWidth="400" 
-                            ShowFreezeButton="False"/>
+                            FieldWidth="400"
+                            ShowFreezeButton="False" />
+
                     </StackPanel>
+
                 </ScrollViewer>
+
             </TabItem>
+
         </TabControl>
 
         <!-- Footer -->
@@ -233,6 +229,7 @@
                 Text="{Binding Cards.Count, StringFormat='Карточек в колоде: {0}'}"
                 Opacity="0.6"
                 HorizontalAlignment="Center" />
+
         </Border>
 
     </Grid>
