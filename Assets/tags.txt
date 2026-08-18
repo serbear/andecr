@@ -1,13 +1,13 @@
-общее
-медицина
-юриспруденция
-техника
-IT
-бизнес
-финансы
-военное дело
-кулинария
-спорт
-морское дело
-наука
-искусство
+DISPLAY
+GET WORSE
+GLASS
+HAIR
+HUMOR
+INTELLIGENCE
+MOVE
+MOVE EASILY
+MOVEMENT
+PHOTOGRAPH
+SHOE
+STRUCTURE FOR PLAY
+WORSE STATE

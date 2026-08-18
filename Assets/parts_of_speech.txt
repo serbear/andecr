@@ -1,12 +1,13 @@
-существительное
-глагол
-прилагательное
-наречие
-местоимение
-предлог
-союз
-междометие
-артикль
-числительное
-фразовый глагол
-идиома
+adjective
+adverb
+article
+conjunction
+idiom
+interjection
+noun
+numeral
+phrasal verb
+preposition
+pronoun
+plural noun
+verb
