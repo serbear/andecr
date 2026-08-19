@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reactive;
+using System.Text;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using ReactiveUI;
@@ -77,7 +78,7 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
     /// <summary>
     /// Storage for all editable card field 'IsFrozen' states.
     /// </summary>
-    private readonly Dictionary<string, bool> _frozenStates = 
+    private readonly Dictionary<string, bool> _frozenStates =
         CardField.All.ToDictionary(key => key, _ => false);
 
     /// <summary>
@@ -123,10 +124,7 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
         // Кнопка редактора: остаётся на текущем экране редактора
         EditorCommand = ReactiveCommand.Create(() => { });
 
-        GoBackCommand = ReactiveCommand.Create(() =>
-        {
-            _mainVm.CurrentScreen = new DeckSelectionViewModel(_mainVm);
-        });
+        GoBackCommand = ReactiveCommand.Create(() => { _mainVm.CurrentScreen = new DeckSelectionViewModel(_mainVm); });
 
         NewCardCommand = ReactiveCommand.Create(ResetEditor);
 
@@ -148,8 +146,8 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
             {
                 Console.WriteLine(e);
                 throw;
-            } 
-            
+            }
+
             // Cards.Add(new EnglishDictionaryCard
             // {
             //     Definition = this[CardField.Definition].Trim(),
@@ -241,22 +239,37 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
         });
     }
 
-    // Метод для проверки IsFrozen
-    public bool IsFieldFrozen(string field)
-    {
-        return _frozenStates.TryGetValue(field, out var frozen) && frozen;
-    }
+    /// <summary>
+    /// Gets a delegate that normalizes raw text input using standard formatting rules for definition pastes.
+    /// </summary>
+    /// <value>
+    /// A <see cref="Func{string, string}"/> delegate pointing to 
+    /// <see cref="Normalizers.NormalizeDefinitionPasteTextFunc"/>.
+    /// </value>
+    /// <remarks>
+    /// This delegate is intended for use in UI scenarios where users paste definition text 
+    /// (e.g., glossary entries, term descriptions) and consistent formatting is desired.
+    /// 
+    /// The normalization rules are:
+    /// <list type="bullet">
+    /// <item><description>First character is converted to uppercase.</description></item>
+    /// <item><description>A period is appended if the original text doesn't already end with one.</description></item>
+    /// </list>
+    /// 
+    /// Null or empty input is returned as-is (no transformation applied).
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// var normalizer = NormalizeDefinitionPasteText;
+    /// 
+    /// string result1 = normalizer("hello world");   // "Hello world."
+    /// string result2 = normalizer("Definition.");   // "Definition."
+    /// string result3 = normalizer("");              // ""
+    /// string result4 = normalizer(null);            // null
+    /// </code>
+    /// </example>
+    public Func<string, string> NormalizeDefinitionPasteText { get; } = Normalizers.NormalizeDefinitionPasteTextFunc;
 
-// Метод для установки IsFrozen (будет вызываться из XAML через привязку)
-    public void SetFieldFrozen(string field, bool isFrozen)
-    {
-        if (_frozenStates.TryGetValue(field, out var current) && current == isFrozen)
-            return;
-    
-        _frozenStates[field] = isFrozen;
-        this.RaisePropertyChanged();
-    } 
-    
     /// <summary>
     /// Gets or sets the value of a card field identified by one of the <see cref="CardField"/> keys.
     /// Bound from AXAML via the indexer syntax, e.g. <c>{Binding [Definition]}</c>.
@@ -267,7 +280,6 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
         get => _fields.TryGetValue(field, out var value) ? value : string.Empty;
         set
         {
-            
             if (_fields.TryGetValue(field, out var current) && current == value)
                 return;
 
@@ -276,6 +288,7 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
             this.RaisePropertyChanged();
         }
     }
+
     public bool this[string field, bool isFrozen]
     {
         get => _frozenStates.TryGetValue(field, out var value) && value;
@@ -287,8 +300,8 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
             _frozenStates[field] = value;
             this.RaisePropertyChanged();
         }
-    } 
-    
+    }
+
     /// <summary>
     /// Gets the collection of available tags, loaded from Assets/tags.txt.
     /// </summary>
@@ -369,6 +382,22 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
     /// </summary>
     ObservableCollection<MenuItemViewModel> IHasRightMenu.MenuItems => _rightMenuItems;
 
+    // Метод для проверки IsFrozen
+    public bool IsFieldFrozen(string field)
+    {
+        return _frozenStates.TryGetValue(field, out var frozen) && frozen;
+    }
+
+// Метод для установки IsFrozen (будет вызываться из XAML через привязку)
+    public void SetFieldFrozen(string field, bool isFrozen)
+    {
+        if (_frozenStates.TryGetValue(field, out var current) && current == isFrozen)
+            return;
+
+        _frozenStates[field] = isFrozen;
+        this.RaisePropertyChanged();
+    }
+
     /// <summary>
     /// Resets input controls in the card editor to their default empty states.
     /// If an input control is in "frozen" state, it will not be cleaned.
@@ -387,7 +416,7 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
     private bool ValidateRequiredFieldsBeforeSave()
     {
         var (isValid, _) = ValidationHelper.ValidateRequiredFields([
-            (CardField.DictionaryEntry,  new TextValueSanitizer().Sanitize(this[CardField.DictionaryEntry])),
+            (CardField.DictionaryEntry, new TextValueSanitizer().Sanitize(this[CardField.DictionaryEntry])),
             (CardField.Definition, new TextValueSanitizer().Sanitize(this[CardField.Definition])),
             (CardField.Original, new TextValueSanitizer().Sanitize(this[CardField.Original]))
         ]);

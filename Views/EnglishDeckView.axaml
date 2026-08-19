@@ -59,7 +59,8 @@
                             TextWrapping="Wrap"
                             FieldHeight="70"
                             FieldWidth="400"
-                            ShowFreezeButton="False" />
+                            ShowFreezeButton="False" 
+                            TextTransform="{Binding NormalizeDefinitionPasteText}"/>
 
                     </StackPanel>
 

@@ -1,11 +1,9 @@
-using System;
 using System.Windows.Input;
 using andecr.Services;
 using andecr.ViewModels.Controls;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
-using Avalonia.Input.Platform;
 using Avalonia.Media;
 
 namespace andecr.Controls;
@@ -75,7 +73,7 @@ public partial class AndecrTextBox : UserControl
         AvaloniaProperty.Register<AndecrTextBox, bool>(
             nameof(IsFrozen),
             defaultBindingMode: BindingMode.TwoWay);
-    
+
     /// <summary>
     /// Identifies the <see cref="IsFreezeButtonHidden"/> styled property.
     /// Defaults to <see cref="BindingMode.TwoWay"/>.
@@ -85,7 +83,54 @@ public partial class AndecrTextBox : UserControl
             nameof(ShowFreezeButton),
             true,
             defaultBindingMode: BindingMode.TwoWay);
-    
+
+    /// <summary>
+    /// Identifies the <see cref="CanPasteText"/> styled property.
+    /// </summary>
+    public static readonly StyledProperty<bool> CanPasteTextProperty =
+        AvaloniaProperty.Register<AndecrTextBox, bool>(nameof(CanPasteText));
+
+    /// <summary>
+    /// Identifies the <see cref="TextTransform"/> styled property.
+    /// </summary>
+    public static readonly StyledProperty<Func<string, string>?> TextTransformProperty =
+        AvaloniaProperty.Register<AndecrTextBox, Func<string, string>?>(nameof(TextTransform));
+
+    /// <summary>
+    /// Holds a reference to the active window subscription to ensure clean unsubscription upon removal from
+    /// the visual tree.
+    /// </summary>
+    private WindowBase? _subscribedWindow;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AndecrTextBox"/> class.
+    /// </summary>
+    public AndecrTextBox()
+    {
+        InitializeComponent();
+
+        var viewModel = new AndecrTextBoxViewModel(
+            getClipboardTextAsync: async () => await Clipboard.GetTextAsync(this),
+            getClipboardFormatsAsync: async () => await Clipboard.GetFormatAsync(this),
+            setTextAction: pastedText => Text = TextTransform is not null ? TextTransform(pastedText) : pastedText
+        );
+
+        ViewModel = viewModel;
+
+        // Mirror the view model's CanPasteText into our own public StyledProperty so external controls can
+        // observe it (e.g. via ElementName bindings) without needing access to the private ViewModel.
+        CanPasteText = viewModel.CanPasteText;
+        viewModel.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName == nameof(AndecrTextBoxViewModel.CanPasteText))
+            {
+                CanPasteText = viewModel.CanPasteText;
+            }
+        };
+
+        InternalRoot.DataContext = viewModel;
+    }
+
     /// <summary>
     /// Gets or sets a value indicating whether the Freeze button shown or not.
     /// </summary>
@@ -94,8 +139,8 @@ public partial class AndecrTextBox : UserControl
         get => GetValue(ShowFreezeButtonProperty);
         set => SetValue(ShowFreezeButtonProperty, value);
     }
-    
-    
+
+
     /// <summary>
     /// Gets or sets the header or label text displayed above the text input field.
     /// </summary>
@@ -172,12 +217,6 @@ public partial class AndecrTextBox : UserControl
     }
 
     /// <summary>
-    /// Identifies the <see cref="CanPasteText"/> styled property.
-    /// </summary>
-    public static readonly StyledProperty<bool> CanPasteTextProperty =
-        AvaloniaProperty.Register<AndecrTextBox, bool>(nameof(CanPasteText));
-
-    /// <summary>
     /// Gets a value indicating whether non-empty text is currently available in the clipboard to be pasted.
     /// Mirrors the internal <see cref="AndecrTextBoxViewModel.CanPasteText"/> so external controls (e.g.
     /// <see cref="AndecrPasteBothButton"/>) can observe and bind to it without accessing the private
@@ -190,45 +229,20 @@ public partial class AndecrTextBox : UserControl
     }
 
     /// <summary>
+    /// Gets or sets an optional function applied to pasted text before it is written into the input field.
+    /// This property is optional: when it is not set (<see langword="null"/>), pasted text is inserted unchanged.
+    /// The transform runs after the text is read from the clipboard and before it is assigned to <see cref="Text"/>.
+    /// </summary>
+    public Func<string, string>? TextTransform
+    {
+        get => GetValue(TextTransformProperty);
+        set => SetValue(TextTransformProperty, value);
+    }
+
+    /// <summary>
     /// Gets the strongly-typed view model attached as the current DataContext.
     /// </summary> 
     private AndecrTextBoxViewModel ViewModel { get; }
-
-    /// <summary>
-    /// Holds a reference to the active window subscription to ensure clean unsubscription upon removal from
-    /// the visual tree.
-    /// </summary>
-    private WindowBase? _subscribedWindow;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="AndecrTextBox"/> class.
-    /// </summary>
-    public AndecrTextBox()
-    {
-        InitializeComponent();
-
-        var viewModel = new AndecrTextBoxViewModel(
-            getClipboardTextAsync: async () => await Clipboard.GetTextAsync(this),
-            getClipboardFormatsAsync: async () => await Clipboard.GetFormatAsync(this),
-            setTextAction: pastedText => Text = pastedText
-        );
-
-        ViewModel = viewModel;
-
-
-        // Mirror the view model's CanPasteText into our own public StyledProperty so external controls can
-        // observe it (e.g. via ElementName bindings) without needing access to the private ViewModel.
-        CanPasteText = viewModel.CanPasteText;
-        viewModel.PropertyChanged += (_, args) =>
-        {
-            if (args.PropertyName == nameof(AndecrTextBoxViewModel.CanPasteText))
-            {
-                CanPasteText = viewModel.CanPasteText;
-            }
-        };
-
-        InternalRoot.DataContext = viewModel;
-    }
 
     /// <summary>
     /// Executes the underlying paste command, pasting clipboard text into this control's text field.
@@ -241,7 +255,7 @@ public partial class AndecrTextBox : UserControl
         // ReactiveCommand's own public CanExecute is an IObservable<bool> (used for IsEnabled bindings), not a
         // method — the actual ICommand.CanExecute/Execute are implemented explicitly, so we must go through the
         // ICommand interface to call them.
-        var command = (ICommand)ViewModel.PasteTextCommand;
+        ICommand command = ViewModel.PasteTextCommand;
         if (command.CanExecute(null))
         {
             command.Execute(null);
