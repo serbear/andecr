@@ -69,4 +69,15 @@ public interface IMarkerListViewModel
     /// in <see cref="SelectedMarkers"/>.
     /// </remarks> 
     ReactiveCommand<Unit, Unit> AddMarkerCommand { get; }
+
+    /// <summary>
+    /// Gets the command that clears all currently selected markers.
+    /// </summary>
+    /// <value>A reactive command that executes the clear operation.</value>
+    /// <remarks>
+    /// Every marker removed from <see cref="SelectedMarkers"/> is returned to
+    /// <see cref="AvailableMarkers"/>, so the dropdown is fully repopulated. No-op if
+    /// <see cref="SelectedMarkers"/> is already empty.
+    /// </remarks>
+    ReactiveCommand<Unit, Unit> ClearMarkersCommand { get; }
 }

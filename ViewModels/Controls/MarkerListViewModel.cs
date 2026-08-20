@@ -18,14 +18,17 @@ namespace andecr.ViewModels.Controls;
 /// </remarks>
 public class MarkerListViewModel : ReactiveObject, IMarkerListViewModel
 {
-    private string _markersString = string.Empty;
-    private string? _selectedMarkerToAdd;
-
     /// <summary>
     /// The full pool of markers available to this control, in the order they should be displayed.
     /// Used to restore removed markers to <see cref="AvailableMarkers"/> at the correct position.
     /// </summary>
     private readonly List<string> _markerOrder = [];
+
+    /// <summary>Backing field for <see cref="MarkersString"/>.</summary>
+    private string _markersString = string.Empty;
+
+    /// <summary>Backing field for <see cref="SelectedMarkerToAdd"/>.</summary> 
+    private string? _selectedMarkerToAdd;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MarkerListViewModel"/> class.
@@ -50,7 +53,11 @@ public class MarkerListViewModel : ReactiveObject, IMarkerListViewModel
             // Clear the dropdown selection since the previously selected item is no longer available.
             SelectedMarkerToAdd = null;
         });
+        ClearMarkersCommand = ReactiveCommand.Create(ClearMarkers);
     }
+
+    /// <inheritdoc/>
+    public ReactiveCommand<Unit, Unit> ClearMarkersCommand { get; }
 
     /// <inheritdoc/>
     public ObservableCollection<string> SelectedMarkers { get; } = [];
@@ -75,6 +82,45 @@ public class MarkerListViewModel : ReactiveObject, IMarkerListViewModel
     /// <inheritdoc/>
     public ReactiveCommand<Unit, Unit> AddMarkerCommand { get; }
 
+    /// <inheritdoc/>
+    public void SetAvailableMarkers(IEnumerable<string> markers)
+    {
+        _markerOrder.Clear();
+        _markerOrder.AddRange(markers);
+
+        AvailableMarkers.Clear();
+        foreach (var marker in _markerOrder.Where(marker => !SelectedMarkers.Contains(marker)))
+        {
+            AvailableMarkers.Add(marker);
+        }
+    }
+
+    /// <summary>
+    /// Clears all currently selected markers, returning them to the "add marker" dropdown.
+    /// </summary>
+    /// <remarks>
+    /// Executes the internal view model's <see cref="MarkerListViewModel.ClearMarkersCommand"/>.
+    /// Intended to be called from the code-behind of the parent view (e.g. in response to an
+    /// interaction raised by the owning page/deck view model), since the control's internal
+    /// <see cref="MarkerListViewModel"/> instance is not otherwise externally accessible.
+    /// </remarks>
+    private void ClearMarkers()
+    {
+        if (SelectedMarkers.Count == 0)
+        {
+            return;
+        }
+        foreach (var marker in SelectedMarkers)
+        {
+            if (!AvailableMarkers.Contains(marker))
+            {
+                AvailableMarkers.Add(marker);
+            }
+        }
+
+        SelectedMarkers.Clear();
+    }
+
     /// <summary>
     /// Removes the specified marker from the selected markers' collection.
     /// </summary>
@@ -87,20 +133,8 @@ public class MarkerListViewModel : ReactiveObject, IMarkerListViewModel
     public void RemoveMarker(string marker)
     {
         if (SelectedMarkers.Remove(marker))
-            RestoreAvailableMarker(marker);
-    }
-
-    /// <inheritdoc/>
-    public void SetAvailableMarkers(IEnumerable<string> markers)
-    {
-        _markerOrder.Clear();
-        _markerOrder.AddRange(markers);
-
-        AvailableMarkers.Clear();
-        foreach (var marker in _markerOrder)
         {
-            if (!SelectedMarkers.Contains(marker))
-                AvailableMarkers.Add(marker);
+            RestoreAvailableMarker(marker);
         }
     }
 
@@ -125,7 +159,10 @@ public class MarkerListViewModel : ReactiveObject, IMarkerListViewModel
         var insertAt = AvailableMarkers.Count;
         for (var i = 0; i < AvailableMarkers.Count; i++)
         {
-            if (_markerOrder.IndexOf(AvailableMarkers[i]) <= orderIndex) continue;
+            if (_markerOrder.IndexOf(AvailableMarkers[i]) <= orderIndex)
+            {
+                continue;
+            }
             insertAt = i;
             break;
         }

@@ -27,9 +27,11 @@
                     SelectedItem="{Binding SelectedMarkerToAdd, Mode=TwoWay}" />
 
                 <Button Command="{Binding AddMarkerCommand}">
-
                     <TextBlock Text="Add" />
-
+                </Button>
+                
+                <Button Command="{Binding ClearMarkersCommand}">
+                    <TextBlock Text="Clear All"/>
                 </Button>
 
             </StackPanel>

@@ -102,6 +102,7 @@
                             Margin="0,8,0,0" />
 
                         <controls:MarkerList
+                            x:Name="MarkerListControl"
                             HorizontalAlignment="Left"
                             MarkerItems="{Binding Markers}"
                             MarkersString="{Binding [Marker], Mode=OneWayToSource}" />

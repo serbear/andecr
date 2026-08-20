@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using andecr.ViewModels;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
@@ -58,10 +59,8 @@ public partial class MarkerList : UserControl
     public MarkerList()
     {
         InitializeComponent();
-
         _viewModel = new MarkerListViewModel();
         _viewModel.SelectedMarkers.CollectionChanged += OnSelectedMarkersChanged;
-
         InternalRoot.DataContext = _viewModel;
     }
 
@@ -93,6 +92,19 @@ public partial class MarkerList : UserControl
         get => GetValue(MarkersStringProperty);
         set => SetValue(MarkersStringProperty, value);
     }
+
+    /// <summary>
+    /// Clears all currently selected markers and returns them to the "add marker" dropdown.
+    /// </summary>
+    /// <remarks>
+    /// <para>This method executes the internal view model's <see cref="MarkerListViewModel.ClearMarkersCommand"/>.</para>
+    /// <para>Intended to be called from the code-behind of the parent view, for example in response to
+    /// an interaction raised by the owning page/deck view model. This is necessary because the
+    /// control's internal <see cref="MarkerListViewModel"/> instance is not otherwise externally accessible.</para>
+    /// </remarks>
+    /// <seealso cref="MarkerListViewModel.ClearMarkersCommand"/>
+    /// <seealso cref="EnglishDeckViewModel.ClearMarkersInteraction"/>
+    public void ClearMarkers() => _viewModel.ClearMarkersCommand.Execute().Subscribe();
 
     /// <summary>
     /// Handles changes to the internal marker collection.
@@ -139,11 +151,12 @@ public partial class MarkerList : UserControl
     {
         // Do not add a duplicate chip in the list.
         if (_markerChips.ContainsKey(marker))
+        {
             return;
+        }
 
         var markerItem = new MarkerItem { Text = marker };
         markerItem.RemoveRequested += (_, _) => _viewModel.RemoveMarker(marker);
-
         _markerChips[marker] = markerItem;
         SelectedMarkersPanel.Children.Add(markerItem);
     }
@@ -159,24 +172,34 @@ public partial class MarkerList : UserControl
     private void RemoveMarkerChip(string marker)
     {
         if (!_markerChips.Remove(marker, out var markerItem))
+        {
             return;
+        }
 
         SelectedMarkersPanel.Children.Remove(markerItem);
     }
 
     /// <summary>
-    /// Handles replacement of the <see cref="MarkerItems"/> collection instance.
+    /// Handles changes to the <see cref="MarkerItems"/> dependency property.
     /// </summary>
-    /// <param name="e">The property change event data.</param>
+    /// <param name="e">The event arguments containing the old and new property values.</param>
     /// <remarks>
-    /// Unsubscribes from the previous collection's change notifications, subscribes to the new one, and resyncs
-    /// the view model's available-markers pool via <see cref="MarkerListViewModel.SetAvailableMarkers"/>.
-    /// The new collection is used as the source of all available markers, excluding any that are already selected.
+    /// <para>When the <see cref="MarkerItems"/> property changes to a new collection instance:</para>
+    /// <list type="bullet">
+    /// <item><description>Unsubscribes from change notifications on the old collection.</description></item>
+    /// <item><description>Subscribes to change notifications on the new collection.</description></item>
+    /// <item><description>
+    /// Updates the internal view model's available markers via <see cref="MarkerListViewModel.SetAvailableMarkers"/>.
+    /// </description></item>
+    /// </list>
+    /// <para>If the new value is <c>null</c>, the available markers are cleared.</para>
     /// </remarks>
     private void OnMarkerItemsPropertyChanged(AvaloniaPropertyChangedEventArgs e)
     {
         if (e.OldValue is ObservableCollection<string> oldItems)
+        {
             oldItems.CollectionChanged -= OnMarkerItemsSourceChanged;
+        }
 
         if (e.NewValue is ObservableCollection<string> newItems)
         {
@@ -201,6 +224,8 @@ public partial class MarkerList : UserControl
     private void OnMarkerItemsSourceChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         if (sender is ObservableCollection<string> items)
+        {
             _viewModel.SetAvailableMarkers(items);
+        }
     }
 }

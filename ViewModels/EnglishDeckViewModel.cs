@@ -1,7 +1,5 @@
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Reactive;
-using System.Text;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using ReactiveUI;
@@ -57,6 +55,28 @@ public static class CardField
 /// <summary>
 /// View model for managing and editing an English deck and its cards.
 /// </summary>
+/// <remarks>
+/// <para>
+/// This view model handles the state and logic for the deck editor screen, including:
+/// <list type="bullet">
+/// <item><description>Management of card fields (<see cref="CardField"/>) via an indexer</description></item>
+/// <item><description>
+/// Loading and providing option lists (tags, parts of speech, markers, CEFR levels)
+/// </description></item>
+/// <item><description>
+/// Menu items for left and right navigation bars through explicit interface implementations
+/// </description></item>
+/// <item><description>
+/// Commands for saving new cards, resetting the editor, and navigating between screens
+/// </description></item>
+/// </list>
+/// </para>
+/// <para>
+/// The view model uses an indexer-based field storage system instead of individual properties,
+/// allowing dynamic access to card fields by name. Each field can also be "frozen" to preserve its
+/// value during reset operations.
+/// </para>
+/// </remarks>
 public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRightMenu, IHasLeftMenu
 {
     /// <summary>
@@ -106,10 +126,34 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
     private int _selectedTabIndex;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="EnglishDeckViewModel"/> class, loading option lists,
-    /// setting up commands, and configuring menus.
+    /// Initializes a new instance of the <see cref="EnglishDeckViewModel"/> class.
     /// </summary>
-    /// <param name="mainVm">The main window view model instance.</param>
+    /// <param name="mainVm">The main window view model instance providing navigation and global state.</param>
+    /// <remarks>
+    /// <para>
+    /// During initialization, this constructor:
+    /// <list type="number">
+    /// <item><description>
+    /// Loads option lists from text files (tags, parts of speech, markers) using <see cref="TextOptionListLoader"/>.
+    /// </description></item>
+    /// <item><description>Sets up the CEFR levels collection with predefined values (A1-C2).</description></item>
+    /// <item><description>
+    /// Configures all commands for the editor screen, including save, new card, navigation, and exit.
+    /// </description></item>
+    /// <item><description>
+    /// Builds left and right menu item collections with appropriate icons and commands.
+    /// </description></item>
+    /// </list>
+    /// </para>
+    /// <para>
+    /// The "Save" menu item starts in a disabled state and its enabled state is managed dynamically
+    /// by the view model through validation logic in <see cref="ValidateRequiredFieldsBeforeSave"/>.
+    /// </para>
+    /// <para>
+    /// The left menu items represent navigation between sub-screens (Editor, Settings, Decks, Exit),
+    /// while the right menu items represent editor actions (Save, New).
+    /// </para>
+    /// </remarks>
     public EnglishDeckViewModel(MainWindowViewModel mainVm)
     {
         _mainVm = mainVm;
@@ -169,8 +213,7 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
 
             ResetEditor();
 
-            // todo: Switch to the first tab.
-
+            // Switch to the first tab.
             SelectedTabIndex = 0;
         });
 
@@ -244,6 +287,16 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
             Command = ExitCommand
         });
     }
+
+    /// <summary>
+    /// Interaction raised whenever the marker chip list should be cleared.
+    /// </summary>
+    /// <remarks>
+    /// The <see cref="andecr.Controls.MarkerList"/> control manages its own internal view model, so this
+    /// view model cannot clear it directly. The view's code-behind must register a handler for this
+    /// interaction that calls <see cref="andecr.Controls.MarkerList.ClearMarkers"/> on the control instance.
+    /// </remarks>
+    public Interaction<Unit, Unit> ClearMarkersInteraction { get; } = new();
 
     /// <summary>
     /// Gets or sets the index of the currently selected tab.
@@ -418,26 +471,66 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
     /// </summary>
     ObservableCollection<MenuItemViewModel> IHasRightMenu.MenuItems => _rightMenuItems;
 
-    // Метод для проверки IsFrozen
+    /// <summary>
+    /// Determines whether the specified card field is currently frozen.
+    /// </summary>
+    /// <param name="field">The field identifier, one of the <see cref="CardField"/> constants.</param>
+    /// <returns>
+    /// <c>true</c> if the field is frozen; otherwise, <c>false</c>.
+    /// </returns>
+    /// <remarks>
+    /// Frozen fields retain their values when the editor is reset via <see cref="ResetEditor"/>.
+    /// </remarks>
     public bool IsFieldFrozen(string field)
     {
         return _frozenStates.TryGetValue(field, out var frozen) && frozen;
     }
 
-// Метод для установки IsFrozen (будет вызываться из XAML через привязку)
+    /// <summary>
+    /// Sets the frozen state of a specific card field.
+    /// </summary>
+    /// <param name="field">The field identifier, one of the <see cref="CardField"/> constants.</param>
+    /// <param name="isFrozen">
+    /// <c>true</c> to freeze the field (prevent it from being cleared during reset);
+    /// <c>false</c> to unfreeze it.
+    /// </param>
+    /// <remarks>
+    /// This method is intended to be called from XAML bindings rather than directly from code.
+    /// When a field is frozen, its value is preserved when <see cref="ResetEditor"/> is called.
+    /// The method raises the <see cref="ReactiveObject.PropertyChanged"/> event to update the UI.
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// // Freeze the DictionaryEntry field to keep it while clearing other fields
+    /// viewModel.SetFieldFrozen(CardField.DictionaryEntry, true);
+    /// </code>
+    /// </example>
     public void SetFieldFrozen(string field, bool isFrozen)
     {
         if (_frozenStates.TryGetValue(field, out var current) && current == isFrozen)
+        {
             return;
+        }
 
         _frozenStates[field] = isFrozen;
         this.RaisePropertyChanged();
     }
 
     /// <summary>
-    /// Resets input controls in the card editor to their default empty states.
-    /// If an input control is in "frozen" state, it will not be cleaned.
+    /// Resets all non-frozen card fields to their default empty state and clears markers.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This method iterates through all <see cref="CardField.All"/> fields and clears each one
+    /// unless it is marked as frozen via <see cref="SetFieldFrozen"/>.
+    /// </para>
+    /// <para>
+    /// The Marker field is handled separately: it is not a plain text field but a collection managed by
+    /// the <see cref="andecr.Controls.MarkerList"/> control. When the Marker field is not frozen,
+    /// the method triggers the <see cref="ClearMarkersInteraction"/> to notify the view to clear
+    /// the marker chips in the UI.
+    /// </para>
+    /// </remarks>
     private void ResetEditor()
     {
         foreach (var field in CardField.All)
@@ -447,8 +540,30 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
                 this[field] = string.Empty;
             }
         }
+
+        // Marker field is not frozen-aware like the others (it's driven by MarkerList's own selection
+        // state, not a plain text field), so it needs an explicit signal to the view to clear its chips.
+        if (!IsFieldFrozen(CardField.Marker))
+        {
+            ClearMarkersInteraction.Handle(Unit.Default).Subscribe();
+        }
     }
 
+    /// <summary>
+    /// Validates that all required fields contain non-empty values before saving.
+    /// </summary>
+    /// <returns>
+    /// <c>true</c> if all required fields are valid; otherwise, <c>false</c>.
+    /// </returns>
+    /// <remarks>
+    /// The required fields are:
+    /// <list type="bullet">
+    /// <item><description><see cref="CardField.DictionaryEntry"/></description></item>
+    /// <item><description><see cref="CardField.Definition"/></description></item>
+    /// <item><description><see cref="CardField.Original"/></description></item>
+    /// </list>
+    /// Each value is sanitized using <see cref="TextValueSanitizer"/> before validation.
+    /// </remarks>
     private bool ValidateRequiredFieldsBeforeSave()
     {
         var (isValid, _) = ValidationHelper.ValidateRequiredFields([
