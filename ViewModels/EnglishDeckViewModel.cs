@@ -103,6 +103,8 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
     /// </summary>
     private readonly MenuItemViewModel _saveMenuItem;
 
+    private int _selectedTabIndex;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="EnglishDeckViewModel"/> class, loading option lists,
     /// setting up commands, and configuring menus.
@@ -166,6 +168,10 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
             // });
 
             ResetEditor();
+
+            // todo: Switch to the first tab.
+
+            SelectedTabIndex = 0;
         });
 
         ExitCommand = ReactiveCommand.Create(() =>
@@ -237,6 +243,36 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
             ToolTip = "Выйти из приложения",
             Command = ExitCommand
         });
+    }
+
+    /// <summary>
+    /// Gets or sets the index of the currently selected tab.
+    /// </summary>
+    /// <value>
+    /// The zero-based index of the selected tab. Default is 0.
+    /// </value>
+    /// <remarks>
+    /// <para>When this value changes, the property setter automatically raises the
+    /// <see cref="PropertyChanged"/> event via <see cref="RaiseAndSetIfChanged"/>,
+    /// allowing the UI to update in response to the new selection.</para>
+    /// <para>Setting this property to a negative value or a value greater than the
+    /// number of available tabs may cause an <see cref="ArgumentOutOfRangeException"/>
+    /// in the bound control or view model logic. Ensure the value is within the valid range
+    /// before assignment.</para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// // Switch to the second tab
+    /// viewModel.SelectedTabIndex = 1;
+    ///
+    /// // Switch back to the first tab
+    /// viewModel.SelectedTabIndex = 0;
+    /// </code>
+    /// </example>
+    public int SelectedTabIndex
+    {
+        get => _selectedTabIndex;
+        set => this.RaiseAndSetIfChanged(ref _selectedTabIndex, value);
     }
 
     /// <summary>

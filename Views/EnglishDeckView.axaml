@@ -33,7 +33,8 @@
         <TabControl
             Grid.Row="1"
             Margin="16"
-            HorizontalAlignment="Stretch">
+            HorizontalAlignment="Stretch"
+            SelectedIndex="{Binding SelectedTabIndex}" >
 
             <!-- Вкладка Term -->
 
