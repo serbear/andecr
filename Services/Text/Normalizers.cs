@@ -103,16 +103,16 @@ public static class Normalizers
             return rawText;
         }
 
-        var returnString = new StringBuilder();
+        var returnString = rawText;
         foreach (var symbol in symbolsToRemove)
         {
             if (rawText[^1] == symbol)
             {
-                returnString.Append(rawText[..^1]);
+                returnString = rawText[..^1];
             }
         }
 
-        return returnString.ToString();
+        return returnString;
     }
 
     /// <summary>
