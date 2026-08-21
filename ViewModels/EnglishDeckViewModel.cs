@@ -1,11 +1,12 @@
 using System.Collections.ObjectModel;
 using System.Reactive;
+using andecr.Models;
+using andecr.Services;
+using andecr.Services.DeckExport;
+using andecr.Services.Text;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using ReactiveUI;
-using andecr.Models;
-using andecr.Services;
-using andecr.Services.Text;
 
 namespace andecr.ViewModels;
 
@@ -183,7 +184,7 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
             }
 
             // Concatenate the vocabulary card field data in a string and copy to the clipboard
-            var exportFileRecordString = Services.DeckExport.DeckExport.CreateDeckRecord(_fields);
+            var exportFileRecordString = DeckExport.CreateDeckRecord(_fields);
             try
             {
                 _ = Clipboard.CopyTextAsync(exportFileRecordString);
@@ -357,7 +358,10 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
     /// string result4 = normalizer(null);            // null
     /// </code>
     /// </example>
-    public Func<string, string> NormalizeDefinitionPasteText { get; } = Normalizers.NormalizeDefinitionPasteTextFunc;
+    public Func<string, string> NormalizeDefinitionPasteText { get; } =
+        rawText => Normalizers.NormalizeText(
+            rawText,
+            [':']);
 
     /// <summary>
     /// Gets or sets the value of a card field identified by one of the <see cref="CardField"/> keys.

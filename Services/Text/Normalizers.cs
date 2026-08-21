@@ -45,7 +45,7 @@ public static class Normalizers
     /// NormalizeDefinitionPasteTextFunc(null);            // null
     /// </code>
     /// </example>
-    public static string NormalizeDefinitionPasteTextFunc(string rawText)
+    private static string NormalizeDefinitionPasteTextFunc(string rawText)
     {
         if (string.IsNullOrEmpty(rawText))
         {
@@ -65,5 +65,80 @@ public static class Normalizers
         }
 
         return returnString.ToString();
+    }
+
+    /// <summary>
+    /// Removes a single trailing occurrence of one of the given symbols from the end of a string.
+    /// </summary>
+    /// <param name="rawText">The input string to process. Can be null or empty.</param>
+    /// <param name="symbolsToRemove">
+    /// The set of characters to check for at the end of <paramref name="rawText"/>.
+    /// Only the first matching symbol found in the array is removed.
+    /// </param>
+    /// <returns>
+    /// The string with a trailing symbol removed if <paramref name="rawText"/> ends with any
+    /// character from <paramref name="symbolsToRemove"/>; otherwise <see cref="string.Empty"/>.
+    /// Returns <paramref name="rawText"/> unchanged if it is null or empty.
+    /// </returns>
+    /// <remarks>
+    /// <b>Caution:</b> if the last character of <paramref name="rawText"/> does not match any
+    /// symbol in <paramref name="symbolsToRemove"/>, the method returns an empty string rather
+    /// than the original text — this looks like a bug in the current implementation, since the
+    /// loop only appends to <c>returnString</c> inside the matching branch and never falls back
+    /// to the original text when no symbol matches.
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// RemoveOnceSymbolsFromEnd("hello,", new[] { ',', ';' });  // "hello"
+    /// RemoveOnceSymbolsFromEnd("hello;", new[] { ',', ';' });  // "hello"
+    /// RemoveOnceSymbolsFromEnd("hello", new[] { ',', ';' });   // "" (see remark above)
+    /// RemoveOnceSymbolsFromEnd("", new[] { ',', ';' });        // ""
+    /// RemoveOnceSymbolsFromEnd(null, new[] { ',', ';' });      // null
+    /// </code>
+    /// </example>
+    private static string RemoveOnceSymbolsFromEnd(string rawText, char[] symbolsToRemove)
+    {
+        if (string.IsNullOrEmpty(rawText))
+        {
+            return rawText;
+        }
+
+        var returnString = new StringBuilder();
+        foreach (var symbol in symbolsToRemove)
+        {
+            if (rawText[^1] == symbol)
+            {
+                returnString.Append(rawText[..^1]);
+            }
+        }
+
+        return returnString.ToString();
+    }
+
+    /// <summary>
+    /// Normalizes raw pasted text by stripping a trailing symbol (if present) and applying
+    /// standard definition-text formatting: capitalized first letter and a trailing period.
+    /// </summary>
+    /// <param name="rawText">The input string to normalize. Can be null or empty.</param>
+    /// <param name="symbolsToRemove">
+    /// Trailing characters (e.g. stray commas or semicolons) to strip from <paramref name="rawText"/>
+    /// before formatting. See <see cref="RemoveOnceSymbolsFromEnd"/>.
+    /// </param>
+    /// <returns>
+    /// The normalized string, capitalized and ending with a period.
+    /// See <see cref="RemoveOnceSymbolsFromEnd"/> and
+    /// <see cref="NormalizeDefinitionPasteTextFunc"/> for edge-case behavior.
+    /// </returns>
+    /// <example>
+    /// <code>
+    /// NormalizeText("hello world,", new[] { ',', ';' });  // "Hello world."
+    /// NormalizeText("hello world", new[] { ',', ';' });   // "" (see RemoveOnceSymbolsFromEnd remark)
+    /// </code>
+    /// </example>
+    public static string NormalizeText(string rawText, char[] symbolsToRemove)
+    {
+        var returnString = RemoveOnceSymbolsFromEnd(rawText, symbolsToRemove);
+        returnString = NormalizeDefinitionPasteTextFunc(returnString);
+        return returnString;
     }
 }
