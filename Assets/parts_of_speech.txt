@@ -7,7 +7,8 @@ interjection
 noun
 numeral
 phrasal verb
+phrase
+plural noun
 preposition
 pronoun
-plural noun
 verb
