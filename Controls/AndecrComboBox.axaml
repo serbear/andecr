@@ -1,0 +1,35 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="andecr.Controls.AndecrComboBox"
+    x:Name="AndecrComboBoxRoot">
+
+    <Grid
+        x:Name="InternalRoot"
+        ColumnDefinitions="Auto,*">
+
+        <StackPanel
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            Orientation="Vertical">
+
+            <StackPanel Orientation="Horizontal">
+
+                <ComboBox
+                    ItemsSource="{Binding ItemsSource, ElementName=AndecrComboBoxRoot}"
+                    SelectedItem="{Binding SelectedItem, ElementName=AndecrComboBoxRoot, Mode=TwoWay}"
+                    PlaceholderText="{Binding Placeholder, ElementName=AndecrComboBoxRoot}"
+                    HorizontalAlignment="Stretch" />
+                <ToggleButton
+                    IsChecked="{Binding IsFrozen, ElementName=AndecrComboBoxRoot, Mode=TwoWay}"
+                    IsVisible="{Binding ShowFreezeButton, ElementName=AndecrComboBoxRoot, Mode=TwoWay}">
+                    <TextBlock Text="Freeze" />
+                </ToggleButton>
+
+            </StackPanel>
+
+        </StackPanel>
+
+    </Grid>
+
+</UserControl>

@@ -11,7 +11,7 @@ namespace andecr.Controls;
 /// <summary>
 /// Represents a custom text box control with integrated label, freeze feature, and clipboard paste capabilities.
 /// </summary>
-public partial class AndecrTextBox : UserControl
+public partial class AndecrTextBox : UserControl, IFreezable
 {
     /// <summary>
     /// Identifies the <see cref="Label"/> styled property.
@@ -207,16 +207,6 @@ public partial class AndecrTextBox : UserControl
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether the input field is frozen (the data in the input field does not clear
-    /// on a new vocabulary card creation).
-    /// </summary>
-    public bool IsFrozen
-    {
-        get => GetValue(IsFrozenProperty);
-        set => SetValue(IsFrozenProperty, value);
-    }
-
-    /// <summary>
     /// Gets a value indicating whether non-empty text is currently available in the clipboard to be pasted.
     /// Mirrors the internal <see cref="AndecrTextBoxViewModel.CanPasteText"/> so external controls (e.g.
     /// <see cref="AndecrPasteBothButton"/>) can observe and bind to it without accessing the private
@@ -243,6 +233,16 @@ public partial class AndecrTextBox : UserControl
     /// Gets the strongly-typed view model attached as the current DataContext.
     /// </summary> 
     private AndecrTextBoxViewModel ViewModel { get; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the input field is frozen (the data in the input field does not clear
+    /// on a new vocabulary card creation).
+    /// </summary>
+    public bool IsFrozen
+    {
+        get => GetValue(IsFrozenProperty);
+        set => SetValue(IsFrozenProperty, value);
+    }
 
     /// <summary>
     /// Executes the underlying paste command, pasting clipboard text into this control's text field.

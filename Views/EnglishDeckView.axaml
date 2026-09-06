@@ -34,7 +34,7 @@
             Grid.Row="1"
             Margin="16"
             HorizontalAlignment="Stretch"
-            SelectedIndex="{Binding SelectedTabIndex}" >
+            SelectedIndex="{Binding SelectedTabIndex}">
 
             <!-- Вкладка Term -->
 
@@ -60,8 +60,8 @@
                             TextWrapping="Wrap"
                             FieldHeight="70"
                             FieldWidth="400"
-                            ShowFreezeButton="False" 
-                            TextTransform="{Binding NormalizeDefinitionPasteText}"/>
+                            ShowFreezeButton="False"
+                            TextTransform="{Binding NormalizeDefinitionPasteText}" />
 
                     </StackPanel>
 
@@ -91,16 +91,17 @@
                         <TextBlock
                             Text="Часть речи"
                             Margin="0,8,0,0" />
-                        <ComboBox
+                        <controls:AndecrComboBox
+                            behaviors:FrozenBehavior.FieldName="PartOfSpeech"
                             ItemsSource="{Binding PartsOfSpeech}"
                             SelectedItem="{Binding [PartOfSpeech]}"
-                            PlaceholderText="Выберите часть речи"
+                            Placeholder="Выберите часть речи"
+                            ShowFreezeButton="True"
                             HorizontalAlignment="Stretch" />
 
                         <TextBlock
                             Text="Маркер"
                             Margin="0,8,0,0" />
-
                         <controls:MarkerList
                             x:Name="MarkerListControl"
                             HorizontalAlignment="Left"
