@@ -8,10 +8,17 @@ namespace andecr.Controls;
 /// </summary>
 public class TextBoxTranscriptionSelectedTextTools : SelectedTextToolsControl
 {
+    // todo: Turn into UserControl property.
+    private new const string ButtonLabel = "Sup";
+
     static TextBoxTranscriptionSelectedTextTools()
     {
-        ButtonLabelProperty.OverrideDefaultValue<TextBoxTranscriptionSelectedTextTools>("Sup");
-        OpenTagProperty.OverrideDefaultValue<TextBoxTranscriptionSelectedTextTools>("<sup>");
-        CloseTagProperty.OverrideDefaultValue<TextBoxTranscriptionSelectedTextTools>("</sup>");
+        ButtonLabelProperty.OverrideDefaultValue<TextBoxTranscriptionSelectedTextTools>(ButtonLabel);
+        OpenTagProperty.OverrideDefaultValue<TextBoxTranscriptionSelectedTextTools>(
+            Constants.TranscriptionSuperScriptStart
+        );
+        CloseTagProperty.OverrideDefaultValue<TextBoxTranscriptionSelectedTextTools>(
+            Constants.TranscriptionSuperScriptEnd
+        );
     }
 }

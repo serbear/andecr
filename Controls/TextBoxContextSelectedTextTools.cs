@@ -8,10 +8,13 @@ namespace andecr.Controls;
 /// </summary>
 public class TextBoxContextSelectedTextTools : SelectedTextToolsControl
 {
+    // todo: Turn into UserControl property.
+    private new const string ButtonLabel = "Mark";
+
     static TextBoxContextSelectedTextTools()
     {
-        ButtonLabelProperty.OverrideDefaultValue<TextBoxContextSelectedTextTools>("Mark");
-        OpenTagProperty.OverrideDefaultValue<TextBoxContextSelectedTextTools>("<MARK>");
-        CloseTagProperty.OverrideDefaultValue<TextBoxContextSelectedTextTools>("</MARK>");
+        ButtonLabelProperty.OverrideDefaultValue<TextBoxContextSelectedTextTools>(ButtonLabel);
+        OpenTagProperty.OverrideDefaultValue<TextBoxContextSelectedTextTools>(Constants.LearningTermMarkerStart);
+        CloseTagProperty.OverrideDefaultValue<TextBoxContextSelectedTextTools>(Constants.LearningTermMarkerEnd);
     }
 }

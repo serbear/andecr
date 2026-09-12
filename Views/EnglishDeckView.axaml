@@ -11,6 +11,7 @@
     <Grid RowDefinitions="Auto,*,Auto">
 
         <!-- Header -->
+        
         <Border
             Grid.Row="0"
             Padding="16,12">
@@ -118,35 +119,47 @@
                             HorizontalAlignment="Stretch" />
 
                         <!-- Transcription -->
-                        
+
                         <StackPanel Orientation="Horizontal">
 
                             <StackPanel Orientation="Vertical">
 
-                                <controls:AndecrTextBox 
+                                <!-- British Transcription -->
+                                
+                                <controls:AndecrTextBox
                                     behaviors:FrozenBehavior.FieldName="BritishTranscription"
                                     Label="Транскрипция (брит.)"
                                     Text="{Binding [BritishTranscription]}"
                                     FieldWidth="400"
-                                    ShowToolbar="True" 
-                                    Name="UkTranscription" >
-                                    
+                                    ShowToolbar="True"
+                                    Name="UkTranscription">
+
                                     <controls:AndecrTextBox.SelectedTextTools>
                                         <controls:TextBoxTranscriptionSelectedTextTools />
                                     </controls:AndecrTextBox.SelectedTextTools>
-                                    
-                                </controls:AndecrTextBox> 
-                                
+
+                                </controls:AndecrTextBox>
+
+                                <!-- American Transcription -->
+
                                 <controls:AndecrTextBox
                                     behaviors:FrozenBehavior.FieldName="AmericanTranscription"
                                     Label="Транскрипция (амер.)"
                                     Text="{Binding [AmericanTranscription]}"
                                     FieldWidth="400"
-                                    Name="UsTranscription" />
-                                
-                                
+                                    ShowToolbar="True"
+                                    Name="UsTranscription">
+
+                                    <controls:AndecrTextBox.SelectedTextTools>
+                                        <controls:TextBoxTranscriptionSelectedTextTools />
+                                    </controls:AndecrTextBox.SelectedTextTools>
+
+                                </controls:AndecrTextBox>
+
                             </StackPanel>
 
+                            <!-- The Paste Both Button -->
+                                
                             <controls:AndecrPasteBothButton
                                 FirstTextBox="{Binding #UkTranscription}"
                                 SecondTextBox="{Binding #UsTranscription}"
@@ -155,6 +168,8 @@
 
                         </StackPanel>
 
+                        <!-- The link to the sound file -->
+                        
                         <controls:AndecrTextBox
                             behaviors:FrozenBehavior.FieldName="Sound"
                             Label="Звук"
@@ -163,7 +178,9 @@
                             FieldWidth="400" />
 
                     </StackPanel>
+                    
                 </ScrollViewer>
+                
             </TabItem>
 
             <!-- Вкладка Context -->
@@ -175,17 +192,27 @@
                     <StackPanel
                         Spacing="8"
                         Margin="16">
-
+                        
                         <controls:AndecrTextBox
+                            Name="ContextOriginal"
                             Label="Оригинал"
                             Text="{Binding [Original]}"
                             Watermark="Контекст использования на английском"
-                            AcceptsReturn="True"
-                            TextWrapping="Wrap"
                             FieldHeight="60"
                             FieldWidth="400"
-                            ShowFreezeButton="False" />
+                            AcceptsReturn="True"
+                            TextWrapping="Wrap"
+                            ShowToolbar="True"
+                            ShowFreezeButton="False">
+
+                            <controls:AndecrTextBox.SelectedTextTools>
+                                <controls:TextBoxContextSelectedTextTools />
+                            </controls:AndecrTextBox.SelectedTextTools>
+
+                        </controls:AndecrTextBox>
+                        
                         <controls:AndecrTextBox
+                            Name="ContextLiteral"
                             Label="Дословный перевод"
                             Text="{Binding [LiteralTranslation]}"
                             Watermark="Дословный перевод контекста"
@@ -193,8 +220,17 @@
                             TextWrapping="Wrap"
                             FieldHeight="60"
                             FieldWidth="400"
-                            ShowFreezeButton="False" />
+                            ShowToolbar="True"
+                            ShowFreezeButton="False" >
+                            
+                            <controls:AndecrTextBox.SelectedTextTools>
+                                <controls:TextBoxContextSelectedTextTools />
+                            </controls:AndecrTextBox.SelectedTextTools>
+                            
+                        </controls:AndecrTextBox>
+                        
                         <controls:AndecrTextBox
+                            Name="ContextLiterary"
                             Label="Литературный перевод"
                             Text="{Binding [LiteraryTranslation]}"
                             Watermark="Смысловой перевод оригинала"
@@ -202,10 +238,13 @@
                             TextWrapping="Wrap"
                             FieldHeight="60"
                             FieldWidth="400"
+                            ShowToolbar="False"
                             ShowFreezeButton="False" />
 
                     </StackPanel>
+                    
                 </ScrollViewer>
+                
             </TabItem>
 
             <!-- Вкладка Notes -->
@@ -237,6 +276,7 @@
         </TabControl>
 
         <!-- Footer -->
+        
         <Border
             Grid.Row="2"
             Padding="16,12">

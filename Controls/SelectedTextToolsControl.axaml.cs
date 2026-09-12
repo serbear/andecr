@@ -82,10 +82,13 @@ public partial class SelectedTextToolsControl : UserControl
             getText: () => TargetTextBox?.Text,
             setText: updatedText =>
             {
-                if (TargetTextBox is not null)
-                {
-                    TargetTextBox.Text = updatedText;
-                }
+                if (TargetTextBox is null) return;
+                TargetTextBox.Text = updatedText;
+                // Remove text selection in the text box after inserting markers.
+                TargetTextBox.ClearSelection();
+                // Помещает каретку в конец текста и снимает выделение
+                // TargetTextBox.SelectionStart = updatedText?.Length ?? 0;
+                // TargetTextBox.SelectionEnd = TargetTextBox.SelectionStart;
             },
             getOpenTag: () => OpenTag,
             getCloseTag: () => CloseTag);
@@ -95,7 +98,7 @@ public partial class SelectedTextToolsControl : UserControl
         // actually observe the change.
         if (_viewModel is ReactiveObject reactiveVm)
         {
-            reactiveVm.PropertyChanged += (s, e) =>
+            reactiveVm.PropertyChanged += (_, e) =>
             {
                 if (e.PropertyName == nameof(ISelectedTextToolsViewModel.CanInsertMarkup))
                 {
