@@ -1,0 +1,15 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:andecr.Controls"
+    x:Class="andecr.Controls.SelectedTextToolsControl"
+    x:Name="SelectedTextToolsRoot">
+
+    <StackPanel Orientation="Horizontal">
+        <Button
+            Focusable="False"
+            Content="{Binding ButtonLabel, RelativeSource={RelativeSource AncestorType=controls:SelectedTextToolsControl}}"
+            Command="{Binding InsertMarkupCommand, RelativeSource={RelativeSource AncestorType=controls:SelectedTextToolsControl}}"
+            IsEnabled="{Binding CanInsertMarkup, RelativeSource={RelativeSource AncestorType=controls:SelectedTextToolsControl}}" />
+    </StackPanel>
+</UserControl>

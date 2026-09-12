@@ -97,6 +97,18 @@ public partial class AndecrTextBox : UserControl, IFreezable
         AvaloniaProperty.Register<AndecrTextBox, Func<string, string>?>(nameof(TextTransform));
 
     /// <summary>
+    /// Identifies the <see cref="SelectedTextTools"/> styled property.
+    /// </summary>
+    public static readonly StyledProperty<SelectedTextToolsControl?> SelectedTextToolsProperty =
+        AvaloniaProperty.Register<AndecrTextBox, SelectedTextToolsControl?>(nameof(SelectedTextTools));
+
+    /// <summary>
+    /// Identifies the <see cref="ShowToolbar"/> styled property.
+    /// </summary>
+    public static readonly StyledProperty<bool> ShowToolbarProperty =
+        AvaloniaProperty.Register<AndecrTextBox, bool>(nameof(ShowToolbar));
+
+    /// <summary>
     /// Holds a reference to the active window subscription to ensure clean unsubscription upon removal from
     /// the visual tree.
     /// </summary>
@@ -230,6 +242,36 @@ public partial class AndecrTextBox : UserControl, IFreezable
     }
 
     /// <summary>
+    /// Gets or sets the selected-text markup toolbar (e.g. a <see cref="TextBoxContextSelectedTextTools"/> or
+    /// <see cref="TextBoxTranscriptionSelectedTextTools"/>) shown below the input field. This control keeps
+    /// the toolbar's <see cref="SelectedTextToolsControl.TargetTextBox"/> pointed at its own internal text box
+    /// automatically — the caller only needs to supply the toolbar instance, typically via property-element
+    /// syntax so it is not also placed elsewhere in the visual tree, e.g.:
+    /// <code>
+    /// &lt;controls:AndecrTextBox ShowToolbar="True"&gt;
+    ///     &lt;controls:AndecrTextBox.SelectedTextTools&gt;
+    ///         &lt;controls:TextBoxContextSelectedTextTools /&gt;
+    ///     &lt;/controls:AndecrTextBox.SelectedTextTools&gt;
+    /// &lt;/controls:AndecrTextBox&gt;
+    /// </code>
+    /// </summary>
+    public SelectedTextToolsControl? SelectedTextTools
+    {
+        get => GetValue(SelectedTextToolsProperty);
+        set => SetValue(SelectedTextToolsProperty, value);
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether <see cref="SelectedTextTools"/> is displayed below the input
+    /// field. Has no visible effect if <see cref="SelectedTextTools"/> is not set.
+    /// </summary>
+    public bool ShowToolbar
+    {
+        get => GetValue(ShowToolbarProperty);
+        set => SetValue(ShowToolbarProperty, value);
+    }
+
+    /// <summary>
     /// Gets the strongly-typed view model attached as the current DataContext.
     /// </summary> 
     private AndecrTextBoxViewModel ViewModel { get; }
@@ -271,6 +313,11 @@ public partial class AndecrTextBox : UserControl, IFreezable
     {
         base.OnAttachedToVisualTree(e);
 
+        if (SelectedTextTools is not null)
+        {
+            SelectedTextTools.TargetTextBox = InternalTextBox;
+        } 
+        
         // Activated is defined in WindowBase, not in TopLevel: on desktop, TopLevel.GetTopLevel(...) usually returns a
         // Window (which derives from WindowBase), but on single-view host platforms (Android/iOS/Browser), it might be
         // a plain TopLevel without focus-based activation — in that case, we simply don't subscribe and rely on the
@@ -299,6 +346,23 @@ public partial class AndecrTextBox : UserControl, IFreezable
         }
 
         base.OnDetachedFromVisualTree(e);
+    }
+
+    /// <summary>
+    /// Handles changes to this control's Avalonia properties, in particular keeping
+    /// <see cref="SelectedTextTools"/>'s target text box pointed at <c>InternalTextBox</c> whenever a new
+    /// toolbar instance is assigned.
+    /// </summary>
+    /// <param name="change">Details of the property that changed.</param>
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+
+        if (change.Property == SelectedTextToolsProperty
+            && change.GetNewValue<SelectedTextToolsControl?>() is { } selectedTextTools)
+        {
+            selectedTextTools.TargetTextBox = InternalTextBox;
+        }
     }
 
     /// <summary>

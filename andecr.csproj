@@ -20,7 +20,7 @@
     <PackageReference Include="ReactiveUI.Avalonia" Version="12.0.3" />
     <PackageReference Include="System.Reactive" Version="6.1.0" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <Compile Update="Views\DeckSelectionView.axaml.cs">
       <DependentUpon>DeckSelectionView.axaml</DependentUpon>
@@ -51,6 +51,9 @@
     </Compile>
     <Compile Update="Controls\MarkerList.axaml.cs">
       <DependentUpon>MarkerList.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Controls\SelectedTextToolsControl.axaml.cs">
+      <DependentUpon>SelectedTextToolsControl.axaml</DependentUpon>
     </Compile>
   </ItemGroup>
   

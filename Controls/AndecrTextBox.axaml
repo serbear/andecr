@@ -15,12 +15,11 @@
             Grid.ColumnSpan="3"
             Orientation="Vertical">
 
-            <TextBlock
-                Text="{Binding Label, ElementName=AndecrTextBoxRoot}" />
-            <StackPanel
-                Orientation="Horizontal">
+            <TextBlock Text="{Binding Label, ElementName=AndecrTextBoxRoot}" />
+            <StackPanel Orientation="Horizontal">
 
                 <TextBox
+                    x:Name="InternalTextBox"
                     Text="{Binding Text, ElementName=AndecrTextBoxRoot, Mode=TwoWay}"
                     PlaceholderText="{Binding Watermark, ElementName=AndecrTextBoxRoot}"
                     AcceptsReturn="{Binding AcceptsReturn, ElementName=AndecrTextBoxRoot}"
@@ -30,18 +29,22 @@
                 <ToggleButton
                     IsChecked="{Binding IsFrozen, ElementName=AndecrTextBoxRoot, Mode=TwoWay}"
                     IsVisible="{Binding ShowFreezeButton, ElementName=AndecrTextBoxRoot, Mode=TwoWay}">
-                    <TextBlock
-                        Text="Freeze" />
+                    <TextBlock Text="Freeze" />
                 </ToggleButton>
                 <Button
                     Command="{Binding PasteTextCommand}"
                     IsEnabled="{Binding CanPasteText}"
                     ToolTip.Tip="Paste text from the clipboard into the text field.">
-                    <TextBlock
-                        Text="Paste" />
+                    <TextBlock Text="Paste" />
                 </Button>
 
             </StackPanel>
+
+            <ContentControl
+                Content="{Binding SelectedTextTools, ElementName=AndecrTextBoxRoot}"
+                IsVisible="{Binding ShowToolbar, ElementName=AndecrTextBoxRoot}"
+                HorizontalAlignment="Left" />
+
         </StackPanel>
     </Grid>
 </UserControl>

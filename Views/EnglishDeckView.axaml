@@ -117,22 +117,41 @@
                             PlaceholderText="A1 – C2"
                             HorizontalAlignment="Stretch" />
 
+                        <!-- Transcription -->
+                        
                         <StackPanel Orientation="Horizontal">
 
                             <StackPanel Orientation="Vertical">
 
-                                <controls:AndecrTextBox
+                                <!-- <controls:AndecrTextBox -->
+                                    <!-- behaviors:FrozenBehavior.FieldName="BritishTranscription" -->
+                                    <!-- Label="Транскрипция (брит.)" -->
+                                    <!-- Text="{Binding [BritishTranscription]}" -->
+                                    <!-- FieldWidth="400" -->
+                                    <!-- Name="UkTranscription"  -->
+                                    <!-- /> -->
+                                <controls:AndecrTextBox 
                                     behaviors:FrozenBehavior.FieldName="BritishTranscription"
                                     Label="Транскрипция (брит.)"
                                     Text="{Binding [BritishTranscription]}"
                                     FieldWidth="400"
-                                    Name="UkTranscription" />
+                                    ShowToolbar="True" 
+                                    Name="UkTranscription" >
+                                    
+                                    <controls:AndecrTextBox.SelectedTextTools>
+                                        <controls:TextBoxTranscriptionSelectedTextTools />
+                                    </controls:AndecrTextBox.SelectedTextTools>
+                                    
+                                </controls:AndecrTextBox> 
+                                
                                 <controls:AndecrTextBox
                                     behaviors:FrozenBehavior.FieldName="AmericanTranscription"
                                     Label="Транскрипция (амер.)"
                                     Text="{Binding [AmericanTranscription]}"
                                     FieldWidth="400"
                                     Name="UsTranscription" />
+                                
+                                
                             </StackPanel>
 
                             <controls:AndecrPasteBothButton
