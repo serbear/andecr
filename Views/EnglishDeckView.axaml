@@ -123,13 +123,6 @@
 
                             <StackPanel Orientation="Vertical">
 
-                                <!-- <controls:AndecrTextBox -->
-                                    <!-- behaviors:FrozenBehavior.FieldName="BritishTranscription" -->
-                                    <!-- Label="Транскрипция (брит.)" -->
-                                    <!-- Text="{Binding [BritishTranscription]}" -->
-                                    <!-- FieldWidth="400" -->
-                                    <!-- Name="UkTranscription"  -->
-                                    <!-- /> -->
                                 <controls:AndecrTextBox 
                                     behaviors:FrozenBehavior.FieldName="BritishTranscription"
                                     Label="Транскрипция (брит.)"

@@ -2,7 +2,6 @@ using System.Windows.Input;
 using andecr.ViewModels.Controls;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Data;
 using ReactiveUI;
 
 namespace andecr.Controls;
@@ -54,10 +53,9 @@ public partial class SelectedTextToolsControl : UserControl
     private readonly ISelectedTextToolsViewModel _viewModel;
 
     /// <summary>
-    /// Subscription tracking changes to <see cref="TargetTextBox"/>'s current selection start, kept so it can
-    /// be disposed when the target changes or this control is detached.
+    /// Backing field for <see cref="CanInsertMarkup"/>.
     /// </summary>
-    private IDisposable? _selectionStartSubscription;
+    private bool _canInsertMarkup;
 
     /// <summary>
     /// Subscription tracking changes to <see cref="TargetTextBox"/>'s current selection end, kept so it can be
@@ -66,11 +64,10 @@ public partial class SelectedTextToolsControl : UserControl
     private IDisposable? _selectionEndSubscription;
 
     /// <summary>
-    /// Backing field for <see cref="CanInsertMarkup"/>.
+    /// Subscription tracking changes to <see cref="TargetTextBox"/>'s current selection start, kept so it can
+    /// be disposed when the target changes or this control is detached.
     /// </summary>
-    private bool _canInsertMarkup;
-
-    public bool CanInsertMarkup => _canInsertMarkup;
+    private IDisposable? _selectionStartSubscription;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SelectedTextToolsControl"/> class.
@@ -94,19 +91,25 @@ public partial class SelectedTextToolsControl : UserControl
             getCloseTag: () => CloseTag);
 
         // Notify Avalonia's binding system when the view model's CanInsertMarkup changes.
-        // Must use SetAndRaise (not a hand-built AvaloniaPropertyChangedEventArgs) so that
-        // bindings such as IsEnabled actually observe the change.
+        // Must use SetAndRaise (not a hand-built AvaloniaPropertyChangedEventArgs) so that bindings such as IsEnabled
+        // actually observe the change.
         if (_viewModel is ReactiveObject reactiveVm)
         {
             reactiveVm.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(ISelectedTextToolsViewModel.CanInsertMarkup))
                 {
-                    SetAndRaise(CanInsertMarkupProperty, ref _canInsertMarkup, _viewModel.CanInsertMarkup);
+                    SetAndRaise(
+                        CanInsertMarkupProperty,
+                        ref _canInsertMarkup,
+                        _viewModel.CanInsertMarkup
+                    );
                 }
             };
         }
     }
+
+    public bool CanInsertMarkup => _canInsertMarkup;
 
     /// <summary>
     /// Gets or sets the text displayed on the toolbar's button.

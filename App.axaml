@@ -1,18 +1,20 @@
-<Application xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="using:andecr"
-             x:Class="andecr.App"
-             RequestedThemeVariant="Default">
-  <Application.DataTemplates>
-    <local:ViewLocator />
-  </Application.DataTemplates>
-  
-  <Application.Resources>
-    <Bitmap x:Key="TileBitmap">avares://andecr/Assets/Images/cartographer.png</Bitmap>
-  </Application.Resources>
-  
-  <Application.Styles>
-    <FluentTheme />
-    
-  </Application.Styles>
+<Application
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:andecr"
+    x:Class="andecr.App"
+    RequestedThemeVariant="Default">
+
+    <Application.DataTemplates>
+        <local:ViewLocator />
+    </Application.DataTemplates>
+
+    <Application.Resources>
+        <Bitmap x:Key="TileBitmap">avares://andecr/Assets/Images/cartographer.png</Bitmap>
+    </Application.Resources>
+
+    <Application.Styles>
+        <FluentTheme />
+
+    </Application.Styles>
 </Application>

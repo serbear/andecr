@@ -316,8 +316,8 @@ public partial class AndecrTextBox : UserControl, IFreezable
         if (SelectedTextTools is not null)
         {
             SelectedTextTools.TargetTextBox = InternalTextBox;
-        } 
-        
+        }
+
         // Activated is defined in WindowBase, not in TopLevel: on desktop, TopLevel.GetTopLevel(...) usually returns a
         // Window (which derives from WindowBase), but on single-view host platforms (Android/iOS/Browser), it might be
         // a plain TopLevel without focus-based activation — in that case, we simply don't subscribe and rely on the

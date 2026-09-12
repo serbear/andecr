@@ -10,14 +10,26 @@ using ReactiveUI;
 public class SelectedTextToolsViewModel : ReactiveObject, ISelectedTextToolsViewModel
 {
     /// <summary>
-    /// Delegate returning the start index of the current selection in the bound text field.
+    /// Delegate returning the tag inserted immediately after the selected text. Read live for the same reason
+    /// as <see cref="_getOpenTag"/>.
     /// </summary>
-    private readonly Func<int> _getSelectionStart;
+    private readonly Func<string> _getCloseTag;
+
+    /// <summary>
+    /// Delegate returning the tag inserted immediately before the selected text. Read live (rather than
+    /// captured once) so it stays correct even if the owning control's OpenTag is set after construction.
+    /// </summary>
+    private readonly Func<string> _getOpenTag;
 
     /// <summary>
     /// Delegate returning the end index of the current selection in the bound text field.
     /// </summary>
     private readonly Func<int> _getSelectionEnd;
+
+    /// <summary>
+    /// Delegate returning the start index of the current selection in the bound text field.
+    /// </summary>
+    private readonly Func<int> _getSelectionStart;
 
     /// <summary>
     /// Delegate returning the full current text of the bound text field.
@@ -30,31 +42,9 @@ public class SelectedTextToolsViewModel : ReactiveObject, ISelectedTextToolsView
     private readonly Action<string?> _setText;
 
     /// <summary>
-    /// Delegate returning the tag inserted immediately before the selected text. Read live (rather than
-    /// captured once) so it stays correct even if the owning control's OpenTag is set after construction.
-    /// </summary>
-    private readonly Func<string> _getOpenTag;
-
-    /// <summary>
-    /// Delegate returning the tag inserted immediately after the selected text. Read live for the same reason
-    /// as <see cref="_getOpenTag"/>.
-    /// </summary>
-    private readonly Func<string> _getCloseTag;
-
-    /// <summary>
     /// Backing field for <see cref="CanInsertMarkup"/>.
     /// </summary>
     private bool _canInsertMarkup;
-
-    /// <inheritdoc />
-    public bool CanInsertMarkup
-    {
-        get => _canInsertMarkup;
-        private set => this.RaiseAndSetIfChanged(ref _canInsertMarkup, value);
-    }
-
-    /// <inheritdoc />
-    public ReactiveCommand<Unit, Unit> InsertMarkupCommand { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SelectedTextToolsViewModel"/> class.
@@ -82,6 +72,22 @@ public class SelectedTextToolsViewModel : ReactiveObject, ISelectedTextToolsView
 
         var canInsert = this.WhenAnyValue(x => x.CanInsertMarkup);
         InsertMarkupCommand = ReactiveCommand.Create(InsertMarkup, canInsert);
+    }
+
+    /// <inheritdoc />
+    public bool CanInsertMarkup
+    {
+        get => _canInsertMarkup;
+        private set => this.RaiseAndSetIfChanged(ref _canInsertMarkup, value);
+    }
+
+    /// <inheritdoc />
+    public ReactiveCommand<Unit, Unit> InsertMarkupCommand { get; }
+
+    /// <inheritdoc />
+    public void RefreshSelectionState()
+    {
+        CanInsertMarkup = _getSelectionStart() != _getSelectionEnd();
     }
 
     /// <summary>
@@ -117,11 +123,5 @@ public class SelectedTextToolsViewModel : ReactiveObject, ISelectedTextToolsView
             text[upperIndex..]);
 
         _setText(updatedText);
-    }
-
-    /// <inheritdoc />
-    public void RefreshSelectionState()
-    {
-        CanInsertMarkup = _getSelectionStart() != _getSelectionEnd();
     }
 }
