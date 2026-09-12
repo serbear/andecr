@@ -39,6 +39,18 @@ public partial class SelectedTextToolsControl : UserControl
     public static readonly StyledProperty<TextBox?> TargetTextBoxProperty =
         AvaloniaProperty.Register<SelectedTextToolsControl, TextBox?>(nameof(TargetTextBox));
 
+    /// <summary>
+    /// Identifies the <see cref="CanInsertMarkup"/> read-only direct property, which mirrors
+    /// <see cref="ISelectedTextToolsViewModel.CanInsertMarkup"/> so that XAML bindings (e.g. the
+    /// toolbar button's <c>IsEnabled</c>) can observe it.
+    /// </summary>
+    /// <remarks>
+    /// This is a <see cref="AvaloniaProperty.RegisterDirect{TOwner, TValue}"/> property rather than a
+    /// styled property because its value is owned by the view model and only pushed outward. Changes
+    /// must be published through <see cref="AvaloniaObject.SetAndRaise{T}"/> from the view model's
+    /// <c>PropertyChanged</c> handler; constructing property-changed arguments by hand will not update
+    /// existing bindings.
+    /// </remarks>
     public static readonly DirectProperty<SelectedTextToolsControl, bool> CanInsertMarkupProperty =
         AvaloniaProperty.RegisterDirect<SelectedTextToolsControl, bool>(
             nameof(CanInsertMarkup),
@@ -50,7 +62,7 @@ public partial class SelectedTextToolsControl : UserControl
     /// values captured at construction time, so it stays correct even though those properties are normally
     /// set from AXAML after this constructor has already run.
     /// </summary>
-    private readonly ISelectedTextToolsViewModel _viewModel;
+    private readonly SelectedTextToolsViewModel _viewModel;
 
     /// <summary>
     /// Backing field for <see cref="CanInsertMarkup"/>.
@@ -68,6 +80,18 @@ public partial class SelectedTextToolsControl : UserControl
     /// be disposed when the target changes or this control is detached.
     /// </summary>
     private IDisposable? _selectionStartSubscription;
+
+    /// <summary>
+    /// Subscription tracking changes to <see cref="TargetTextBox"/>'s <see cref="TextBox.TextProperty"/>,
+    /// kept so it can be disposed when the target changes or this control is detached.
+    /// </summary>
+    /// <remarks>
+    /// Text can change without any change to the selection indices — most notably when
+    /// <see cref="andecr.ViewModels.EnglishDeckViewModel.ResetEditor"/> clears a field programmatically
+    /// after a save. Observing text changes ensures <see cref="CanInsertMarkup"/> does not go stale in
+    /// those cases, where the selection properties alone would not fire.
+    /// </remarks>
+    private IDisposable? _textSubscription;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SelectedTextToolsControl"/> class.
@@ -112,6 +136,20 @@ public partial class SelectedTextToolsControl : UserControl
         }
     }
 
+    /// <summary>
+    /// Gets a value indicating whether the bound <see cref="TargetTextBox"/> currently has a non-empty
+    /// selection and the markup command can therefore be executed.
+    /// </summary>
+    /// <value>
+    /// <see langword="true"/> when the selection start and end indices differ; otherwise,
+    /// <see langword="false"/>. Defaults to <see langword="false"/> until
+    /// <see cref="ISelectedTextToolsViewModel.RefreshSelectionState"/> has run at least once.
+    /// </value>
+    /// <remarks>
+    /// This property is a thin pass-through of <see cref="ISelectedTextToolsViewModel.CanInsertMarkup"/>,
+    /// kept in sync via <see cref="CanInsertMarkupProperty"/>. It is read-only from the control's
+    /// perspective: assign the underlying view model state instead.
+    /// </remarks>
     public bool CanInsertMarkup => _canInsertMarkup;
 
     /// <summary>
@@ -171,6 +209,13 @@ public partial class SelectedTextToolsControl : UserControl
     }
 
     /// <inheritdoc />
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+        AttachToTextBox(TargetTextBox);
+    }
+
+    /// <inheritdoc />
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
         DetachFromTextBox();
@@ -194,6 +239,11 @@ public partial class SelectedTextToolsControl : UserControl
             _selectionEndSubscription = textBox
                 .GetObservable(TextBox.SelectionEndProperty)
                 .Subscribe(_ => _viewModel.RefreshSelectionState());
+            // Text changes (e.g. programmatic clears during ResetEditor) can also invalidate the current selection
+            // state, so refresh on those too.
+            _textSubscription = textBox
+                .GetObservable(TextBox.TextProperty)
+                .Subscribe(_ => _viewModel.RefreshSelectionState());
         }
 
         _viewModel.RefreshSelectionState();
@@ -209,5 +259,8 @@ public partial class SelectedTextToolsControl : UserControl
 
         _selectionEndSubscription?.Dispose();
         _selectionEndSubscription = null;
+
+        _textSubscription?.Dispose();
+        _textSubscription = null;
     }
 }
