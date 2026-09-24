@@ -47,6 +47,11 @@ public class SelectedTextToolsViewModel : ReactiveObject, ISelectedTextToolsView
     private bool _canInsertMarkup;
 
     /// <summary>
+    /// Backing field for <see cref="CanUnmark"/>.
+    /// </summary>
+    private bool _canUnmark;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="SelectedTextToolsViewModel"/> class.
     /// </summary>
     /// <param name="getSelectionStart">Delegate returning the bound field's current selection start index.</param>
@@ -72,6 +77,14 @@ public class SelectedTextToolsViewModel : ReactiveObject, ISelectedTextToolsView
 
         var canInsert = this.WhenAnyValue(x => x.CanInsertMarkup);
         InsertMarkupCommand = ReactiveCommand.Create(InsertMarkup, canInsert);
+        UnmarkCommand = ReactiveCommand.Create(Unmark, this.WhenAnyValue(vm => vm.CanUnmark));
+    }
+
+    /// <inheritdoc />
+    public bool CanUnmark
+    {
+        get => _canUnmark;
+        private set => this.RaiseAndSetIfChanged(ref _canUnmark, value);
     }
 
     /// <inheritdoc />
@@ -85,9 +98,31 @@ public class SelectedTextToolsViewModel : ReactiveObject, ISelectedTextToolsView
     public ReactiveCommand<Unit, Unit> InsertMarkupCommand { get; }
 
     /// <inheritdoc />
+    public ReactiveCommand<Unit, Unit> UnmarkCommand { get; }
+
+    /// <inheritdoc />
     public void RefreshSelectionState()
     {
         CanInsertMarkup = _getSelectionStart() != _getSelectionEnd();
+
+        var text = _getText();
+        var openTag = _getOpenTag();
+        var closeTag = _getCloseTag();
+        CanUnmark = !string.IsNullOrEmpty(text)
+                    && (text.Contains(openTag) || (closeTag.Length > 0 && text.Contains(closeTag)));
+    }
+
+    /// <summary>
+    /// Removes every instance of the configured open and close tags from the bound text field's text.
+    /// Does nothing if the text is null or empty.
+    /// </summary>
+    private void Unmark()
+    {
+        var text = _getText();
+        if (string.IsNullOrEmpty(text)) return;
+
+        var updated = text.Replace(_getOpenTag(), string.Empty).Replace(_getCloseTag(), string.Empty);
+        _setText(updated);
     }
 
     /// <summary>

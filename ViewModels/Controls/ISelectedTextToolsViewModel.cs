@@ -20,6 +20,17 @@ public interface ISelectedTextToolsViewModel
     ReactiveCommand<Unit, Unit> InsertMarkupCommand { get; }
 
     /// <summary>
+    /// Gets a value indicating whether the bound text field's text currently contains the configured
+    /// open or close tag, and the unmark command can therefore be executed.
+    /// </summary>
+    bool CanUnmark { get; }
+
+    /// <summary>
+    /// Gets the command that removes every configured open/close tag instance from the bound text field.
+    /// </summary>
+    ReactiveCommand<Unit, Unit> UnmarkCommand { get; }
+
+    /// <summary>
     /// Re-evaluates <see cref="CanInsertMarkup"/> based on the current selection of the bound text field.
     /// Must be called whenever the bound field's selection (or its underlying text) changes, since there is
     /// no shared "selection changed" event to observe automatically.

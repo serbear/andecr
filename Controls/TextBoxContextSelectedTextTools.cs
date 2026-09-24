@@ -8,7 +8,7 @@ namespace andecr.Controls;
 /// </summary>
 public class TextBoxContextSelectedTextTools : SelectedTextToolsControl
 {
-    // todo: Turn into UserControl property.
+    // TODO: Turn into UserControl property.
     private new const string ButtonLabel = "Mark";
 
     static TextBoxContextSelectedTextTools()

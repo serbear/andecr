@@ -8,8 +8,46 @@
     <StackPanel Orientation="Horizontal">
         <Button
             Focusable="False"
-            Content="{Binding ButtonLabel, RelativeSource={RelativeSource AncestorType=controls:SelectedTextToolsControl}}"
-            Command="{Binding InsertMarkupCommand, RelativeSource={RelativeSource AncestorType=controls:SelectedTextToolsControl}}"
-            IsEnabled="{Binding CanInsertMarkup, RelativeSource={RelativeSource AncestorType=controls:SelectedTextToolsControl}}" />
+            Content="{Binding ButtonLabel, 
+                RelativeSource={RelativeSource AncestorType=controls:SelectedTextToolsControl}}"
+            Command="{Binding InsertMarkupCommand, 
+                RelativeSource={RelativeSource AncestorType=controls:SelectedTextToolsControl}}"
+            IsEnabled="{Binding CanInsertMarkup, 
+                RelativeSource={RelativeSource AncestorType=controls:SelectedTextToolsControl}}" />
+
+        <Button
+            Focusable="False"
+            Content="{Binding UnmarkButtonLabel, 
+                RelativeSource={RelativeSource AncestorType=controls:SelectedTextToolsControl}}"
+            Command="{Binding UnmarkCommand, 
+                RelativeSource={RelativeSource AncestorType=controls:SelectedTextToolsControl}}"
+            IsEnabled="{Binding CanUnmark, 
+                RelativeSource={RelativeSource AncestorType=controls:SelectedTextToolsControl}}" />
+
+        <!--
+            Extensibility slot: any further text-editing tools go here. Derived toolbars (or the site
+            that instantiates one) can append plain Controls to ExtraTools, either in code, or in AXAML
+            via the explicit property-element syntax (ExtraTools is a plain property, not this control's
+            content property — Content, inherited from UserControl, already is that), e.g.:
+
+              <controls:TextBoxContextSelectedTextTools>
+                  <controls:TextBoxContextSelectedTextTools.ExtraTools>
+                      <Button Content="MyTool" Command="{Binding MyToolCommand}" />
+                  </controls:TextBoxContextSelectedTextTools.ExtraTools>
+              </controls:TextBoxContextSelectedTextTools>
+
+            No further changes to this file are needed to support new buttons.
+        -->
+        <ItemsControl
+            ItemsSource="{Binding ExtraTools, 
+                RelativeSource={RelativeSource AncestorType=controls:SelectedTextToolsControl}}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+
     </StackPanel>
+
 </UserControl>
