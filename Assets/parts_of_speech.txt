@@ -1,6 +1,7 @@
 adjective
 adverb
 article
+collocation
 conjunction
 idiom
 interjection
@@ -11,4 +12,5 @@ phrase
 plural noun
 preposition
 pronoun
+suffix
 verb
