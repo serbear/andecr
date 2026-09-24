@@ -51,4 +51,6 @@ public interface IDeckEditorViewModel
     /// Used for toggle states and UI highlighting.
     /// </summary> 
     bool IsConfigActive { get; }
+
+    void SetNewlineTagField(string fieldName, bool boxNewlineTag);
 }

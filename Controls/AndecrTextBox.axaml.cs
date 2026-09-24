@@ -14,101 +14,6 @@ namespace andecr.Controls;
 public partial class AndecrTextBox : UserControl, IFreezable
 {
     /// <summary>
-    /// Identifies the <see cref="Label"/> styled property.
-    /// </summary>
-    public static readonly StyledProperty<string?> LabelProperty =
-        AvaloniaProperty.Register<AndecrTextBox, string?>(nameof(Label));
-
-    /// <summary>
-    /// Identifies the <see cref="Text"/> styled property.
-    /// </summary>
-    public static readonly StyledProperty<string?> TextProperty =
-        AvaloniaProperty.Register<AndecrTextBox, string?>(
-            nameof(Text),
-            defaultBindingMode: BindingMode.TwoWay);
-
-    /// <summary>
-    /// Identifies the <see cref="Watermark"/> styled property.
-    /// </summary>
-    public static readonly StyledProperty<string?> WatermarkProperty =
-        AvaloniaProperty.Register<AndecrTextBox, string?>(nameof(Watermark));
-
-    /// <summary>
-    /// Identifies the <see cref="AcceptsReturn"/> styled property.
-    /// </summary>
-    public static readonly StyledProperty<bool> AcceptsReturnProperty =
-        AvaloniaProperty.Register<AndecrTextBox, bool>(nameof(AcceptsReturn));
-
-    /// <summary>
-    /// Identifies the <see cref="TextWrapping"/> styled property.
-    /// </summary>
-    public static readonly StyledProperty<TextWrapping> TextWrappingProperty =
-        AvaloniaProperty.Register<AndecrTextBox, TextWrapping>(
-            nameof(TextWrapping),
-            TextWrapping.NoWrap);
-
-    /// <summary>
-    /// Identifies the <see cref="FieldHeight"/> styled property.
-    /// Distinct from <see cref="Visual.Height"/> as it specifically targets the internal input control.
-    /// </summary>
-    public static readonly StyledProperty<double> FieldHeightProperty =
-        AvaloniaProperty.Register<AndecrTextBox, double>(
-            nameof(FieldHeight),
-            double.NaN);
-
-    /// <summary>
-    /// Identifies the <see cref="FieldWidth"/> styled property.
-    /// Distinct from <see cref="Visual.Width"/> as it specifically targets the internal input control.
-    /// </summary>
-    public static readonly StyledProperty<double> FieldWidthProperty =
-        AvaloniaProperty.Register<AndecrTextBox, double>(
-            nameof(FieldWidth),
-            double.NaN);
-
-    /// <summary>
-    /// Identifies the <see cref="IsFrozen"/> styled property.
-    /// Defaults to <see cref="BindingMode.TwoWay"/>.
-    /// </summary>
-    public static readonly StyledProperty<bool> IsFrozenProperty =
-        AvaloniaProperty.Register<AndecrTextBox, bool>(
-            nameof(IsFrozen),
-            defaultBindingMode: BindingMode.TwoWay);
-
-    /// <summary>
-    /// Identifies the <see cref="IsFreezeButtonHidden"/> styled property.
-    /// Defaults to <see cref="BindingMode.TwoWay"/>.
-    /// </summary>
-    public static readonly StyledProperty<bool> ShowFreezeButtonProperty =
-        AvaloniaProperty.Register<AndecrTextBox, bool>(
-            nameof(ShowFreezeButton),
-            true,
-            defaultBindingMode: BindingMode.TwoWay);
-
-    /// <summary>
-    /// Identifies the <see cref="CanPasteText"/> styled property.
-    /// </summary>
-    public static readonly StyledProperty<bool> CanPasteTextProperty =
-        AvaloniaProperty.Register<AndecrTextBox, bool>(nameof(CanPasteText));
-
-    /// <summary>
-    /// Identifies the <see cref="TextTransform"/> styled property.
-    /// </summary>
-    public static readonly StyledProperty<Func<string, string>?> TextTransformProperty =
-        AvaloniaProperty.Register<AndecrTextBox, Func<string, string>?>(nameof(TextTransform));
-
-    /// <summary>
-    /// Identifies the <see cref="SelectedTextTools"/> styled property.
-    /// </summary>
-    public static readonly StyledProperty<SelectedTextToolsControl?> SelectedTextToolsProperty =
-        AvaloniaProperty.Register<AndecrTextBox, SelectedTextToolsControl?>(nameof(SelectedTextTools));
-
-    /// <summary>
-    /// Identifies the <see cref="ShowToolbar"/> styled property.
-    /// </summary>
-    public static readonly StyledProperty<bool> ShowToolbarProperty =
-        AvaloniaProperty.Register<AndecrTextBox, bool>(nameof(ShowToolbar));
-
-    /// <summary>
     /// Holds a reference to the active window subscription to ensure clean unsubscription upon removal from
     /// the visual tree.
     /// </summary>
@@ -272,6 +177,15 @@ public partial class AndecrTextBox : UserControl, IFreezable
     }
 
     /// <summary>
+    /// If this flag is set, it replaces line breaks with the '</br>' tag.
+    /// </summary>
+    public bool NewlineTag
+    {
+        get => GetValue(NewlineTagProperty);
+        set => SetValue(NewlineTagProperty, value);
+    }
+
+    /// <summary>
     /// Gets the strongly-typed view model attached as the current DataContext.
     /// </summary> 
     private AndecrTextBoxViewModel ViewModel { get; }
@@ -377,4 +291,109 @@ public partial class AndecrTextBox : UserControl, IFreezable
         // timer (Avalonia lacks a "ClipboardChanged" event).
         _ = ViewModel.RefreshClipboardStateAsync();
     }
+
+    #region Properties
+
+    /// <summary>
+    /// Identifies the <see cref="Label"/> styled property.
+    /// </summary>
+    public static readonly StyledProperty<string?> LabelProperty =
+        AvaloniaProperty.Register<AndecrTextBox, string?>(nameof(Label));
+
+    /// <summary>
+    /// Identifies the <see cref="Text"/> styled property.
+    /// </summary>
+    public static readonly StyledProperty<string?> TextProperty =
+        AvaloniaProperty.Register<AndecrTextBox, string?>(
+            nameof(Text),
+            defaultBindingMode: BindingMode.TwoWay);
+
+    /// <summary>
+    /// Identifies the <see cref="Watermark"/> styled property.
+    /// </summary>
+    public static readonly StyledProperty<string?> WatermarkProperty =
+        AvaloniaProperty.Register<AndecrTextBox, string?>(nameof(Watermark));
+
+    /// <summary>
+    /// Identifies the <see cref="AcceptsReturn"/> styled property.
+    /// </summary>
+    public static readonly StyledProperty<bool> AcceptsReturnProperty =
+        AvaloniaProperty.Register<AndecrTextBox, bool>(nameof(AcceptsReturn));
+
+    /// <summary>
+    /// Identifies the <see cref="TextWrapping"/> styled property.
+    /// </summary>
+    public static readonly StyledProperty<TextWrapping> TextWrappingProperty =
+        AvaloniaProperty.Register<AndecrTextBox, TextWrapping>(
+            nameof(TextWrapping),
+            TextWrapping.NoWrap);
+
+    /// <summary>
+    /// Identifies the <see cref="FieldHeight"/> styled property.
+    /// Distinct from <see cref="Visual.Height"/> as it specifically targets the internal input control.
+    /// </summary>
+    public static readonly StyledProperty<double> FieldHeightProperty =
+        AvaloniaProperty.Register<AndecrTextBox, double>(
+            nameof(FieldHeight),
+            double.NaN);
+
+    /// <summary>
+    /// Identifies the <see cref="FieldWidth"/> styled property.
+    /// Distinct from <see cref="Visual.Width"/> as it specifically targets the internal input control.
+    /// </summary>
+    public static readonly StyledProperty<double> FieldWidthProperty =
+        AvaloniaProperty.Register<AndecrTextBox, double>(
+            nameof(FieldWidth),
+            double.NaN);
+
+    /// <summary>
+    /// Identifies the <see cref="IsFrozen"/> styled property.
+    /// Defaults to <see cref="BindingMode.TwoWay"/>.
+    /// </summary>
+    public static readonly StyledProperty<bool> IsFrozenProperty =
+        AvaloniaProperty.Register<AndecrTextBox, bool>(
+            nameof(IsFrozen),
+            defaultBindingMode: BindingMode.TwoWay);
+
+    /// <summary>
+    /// Identifies the <see cref="IsFreezeButtonHidden"/> styled property.
+    /// Defaults to <see cref="BindingMode.TwoWay"/>.
+    /// </summary>
+    public static readonly StyledProperty<bool> ShowFreezeButtonProperty =
+        AvaloniaProperty.Register<AndecrTextBox, bool>(
+            nameof(ShowFreezeButton),
+            true,
+            defaultBindingMode: BindingMode.TwoWay);
+
+    /// <summary>
+    /// Identifies the <see cref="CanPasteText"/> styled property.
+    /// </summary>
+    public static readonly StyledProperty<bool> CanPasteTextProperty =
+        AvaloniaProperty.Register<AndecrTextBox, bool>(nameof(CanPasteText));
+
+    /// <summary>
+    /// Identifies the <see cref="TextTransform"/> styled property.
+    /// </summary>
+    public static readonly StyledProperty<Func<string, string>?> TextTransformProperty =
+        AvaloniaProperty.Register<AndecrTextBox, Func<string, string>?>(nameof(TextTransform));
+
+    /// <summary>
+    /// Identifies the <see cref="SelectedTextTools"/> styled property.
+    /// </summary>
+    public static readonly StyledProperty<SelectedTextToolsControl?> SelectedTextToolsProperty =
+        AvaloniaProperty.Register<AndecrTextBox, SelectedTextToolsControl?>(nameof(SelectedTextTools));
+
+    /// <summary>
+    /// Identifies the <see cref="ShowToolbar"/> styled property.
+    /// </summary>
+    public static readonly StyledProperty<bool> ShowToolbarProperty =
+        AvaloniaProperty.Register<AndecrTextBox, bool>(nameof(ShowToolbar));
+
+    /// <summary>
+    /// Identifies the <see cref="NewlineTag"/> styled property.
+    /// </summary>
+    public static readonly StyledProperty<bool> NewlineTagProperty =
+        AvaloniaProperty.Register<AndecrTextBox, bool>(nameof(NewlineTag));
+
+    #endregion
 }

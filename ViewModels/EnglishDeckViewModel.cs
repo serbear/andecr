@@ -113,6 +113,8 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
     /// </summary>
     private readonly MainWindowViewModel _mainVm;
 
+    private readonly HashSet<string> _newlineTagFields = [];
+
     /// <summary>
     /// Collection of right-hand menu items representing editor actions (e.g., Save, New).
     /// Used via explicit interface implementation to prevent collision with <see cref="IHasLeftMenu.MenuItems"/>.
@@ -183,8 +185,14 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
                 return;
             }
 
+            var exportFields = _fields.ToDictionary(
+                kv => kv.Key,
+                kv => _newlineTagFields.Contains(kv.Key)
+                    ? TextLineBreaks.ReplaceNewlinesWithTag(kv.Value)
+                    : kv.Value);
+
             // Concatenate the vocabulary card field data in a string and copy to the clipboard
-            var exportFileRecordString = DeckExport.CreateDeckRecord(_fields);
+            var exportFileRecordString = DeckExport.CreateDeckRecord(exportFields);
             try
             {
                 _ = Clipboard.CopyTextAsync(exportFileRecordString);
@@ -194,23 +202,6 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
                 Console.WriteLine(e);
                 throw;
             }
-
-            // Cards.Add(new EnglishDictionaryCard
-            // {
-            //     Definition = this[CardField.Definition].Trim(),
-            //     Tag = this[CardField.Tag],
-            //     DictionaryEntry = this[CardField.DictionaryEntry].Trim(),
-            //     LiteralTranslation = this[CardField.LiteralTranslation].Trim(),
-            //     Original = this[CardField.Original].Trim(),
-            //     LiteraryTranslation = this[CardField.LiteraryTranslation].Trim(),
-            //     PartOfSpeech = this[CardField.PartOfSpeech],
-            //     BritishTranscription = this[CardField.BritishTranscription].Trim(),
-            //     AmericanTranscription = this[CardField.AmericanTranscription].Trim(),
-            //     Marker = this[CardField.Marker],
-            //     CefrLevel = this[CardField.CefrLevel],
-            //     Sound = this[CardField.Sound].Trim(),
-            //     Notes = this[CardField.Notes].Trim()
-            // });
 
             ResetEditor();
 
@@ -424,6 +415,18 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
     /// Gets the command to navigate back to the deck selection screen.
     /// </summary>
     public ReactiveCommand<Unit, Unit> GoBackCommand { get; }
+
+    /// <summary>
+    /// Called by <see cref="andecr.Behaviors.NewlineTagFieldBehavior"/> whenever a bound AndecrTextBox's
+    /// NewlineTag value changes, keeping the export-time replacement set in sync with the XAML.
+    /// </summary>
+    public void SetNewlineTagField(string field, bool usesNewlineTag)
+    {
+        if (usesNewlineTag)
+            _newlineTagFields.Add(field);
+        else
+            _newlineTagFields.Remove(field);
+    }
 
     /// <summary>
     /// Gets a value indicating whether the editor view is currently active.

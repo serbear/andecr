@@ -27,6 +27,11 @@ public class ConfigViewModel : ViewModelBase, IDeckEditorViewModel, IHasRightMen
     /// </summary> 
     public bool IsConfigActive => true;
 
+    public void SetNewlineTagField(string fieldName, bool boxNewlineTag)
+    {
+        throw new NotImplementedException();
+    }
+
     /// <summary>
     /// Command to navigate to the editor screen.
     /// </summary>

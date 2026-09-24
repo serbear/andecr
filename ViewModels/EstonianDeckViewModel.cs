@@ -34,6 +34,11 @@ public class EstonianDeckViewModel : ViewModelBase, IDeckEditorViewModel
     public ReactiveCommand<Unit, Unit> SaveCardCommand { get; }
     public bool IsEditorActive => true;
     public bool IsConfigActive => false;
+    public void SetNewlineTagField(string fieldName, bool boxNewlineTag)
+    {
+        throw new NotImplementedException();
+    }
+
     public ReactiveCommand<Unit, Unit> GoToDecksCommand => GoBackCommand;
     public ReactiveCommand<Unit, Unit> ExitCommand { get; }
     public ReactiveCommand<Unit, Unit> ConfigCommand { get; }

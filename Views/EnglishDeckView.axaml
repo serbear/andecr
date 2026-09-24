@@ -11,7 +11,7 @@
     <Grid RowDefinitions="Auto,*,Auto">
 
         <!-- Header -->
-        
+
         <Border
             Grid.Row="0"
             Padding="16,12">
@@ -125,7 +125,7 @@
                             <StackPanel Orientation="Vertical">
 
                                 <!-- British Transcription -->
-                                
+
                                 <controls:AndecrTextBox
                                     behaviors:FrozenBehavior.FieldName="BritishTranscription"
                                     Label="Транскрипция (брит.)"
@@ -159,7 +159,7 @@
                             </StackPanel>
 
                             <!-- The Paste Both Button -->
-                                
+
                             <controls:AndecrPasteBothButton
                                 FirstTextBox="{Binding #UkTranscription}"
                                 SecondTextBox="{Binding #UsTranscription}"
@@ -169,7 +169,7 @@
                         </StackPanel>
 
                         <!-- The link to the sound file -->
-                        
+
                         <controls:AndecrTextBox
                             behaviors:FrozenBehavior.FieldName="Sound"
                             Label="Звук"
@@ -178,12 +178,12 @@
                             FieldWidth="400" />
 
                     </StackPanel>
-                    
+
                 </ScrollViewer>
-                
+
             </TabItem>
 
-            <!-- Вкладка Context -->
+            <!-- The Context Tab -->
 
             <TabItem Header="Контекст">
 
@@ -192,7 +192,7 @@
                     <StackPanel
                         Spacing="8"
                         Margin="16">
-                        
+
                         <controls:AndecrTextBox
                             Name="ContextOriginal"
                             Label="Оригинал"
@@ -203,14 +203,16 @@
                             AcceptsReturn="True"
                             TextWrapping="Wrap"
                             ShowToolbar="True"
-                            ShowFreezeButton="False">
+                            ShowFreezeButton="False"
+                            NewlineTag="True"
+                            behaviors:NewlineTagFieldBehavior.FieldName="Original">
 
                             <controls:AndecrTextBox.SelectedTextTools>
                                 <controls:TextBoxContextSelectedTextTools />
                             </controls:AndecrTextBox.SelectedTextTools>
 
                         </controls:AndecrTextBox>
-                        
+
                         <controls:AndecrTextBox
                             Name="ContextLiteral"
                             Label="Дословный перевод"
@@ -221,14 +223,16 @@
                             FieldHeight="60"
                             FieldWidth="400"
                             ShowToolbar="True"
-                            ShowFreezeButton="False" >
-                            
+                            ShowFreezeButton="False"
+                            NewlineTag="True"
+                            behaviors:NewlineTagFieldBehavior.FieldName="LiteralTranslation">
+
                             <controls:AndecrTextBox.SelectedTextTools>
                                 <controls:TextBoxContextSelectedTextTools />
                             </controls:AndecrTextBox.SelectedTextTools>
-                            
+
                         </controls:AndecrTextBox>
-                        
+
                         <controls:AndecrTextBox
                             Name="ContextLiterary"
                             Label="Литературный перевод"
@@ -239,12 +243,14 @@
                             FieldHeight="60"
                             FieldWidth="400"
                             ShowToolbar="False"
-                            ShowFreezeButton="False" />
+                            ShowFreezeButton="False"
+                            NewlineTag="True"
+                            behaviors:NewlineTagFieldBehavior.FieldName="LiteraryTranslation" />
 
                     </StackPanel>
-                    
+
                 </ScrollViewer>
-                
+
             </TabItem>
 
             <!-- Вкладка Notes -->
@@ -276,7 +282,7 @@
         </TabControl>
 
         <!-- Footer -->
-        
+
         <Border
             Grid.Row="2"
             Padding="16,12">
