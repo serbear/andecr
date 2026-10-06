@@ -84,7 +84,7 @@
                             Text="Тег"
                             FontWeight="SemiBold" />
                         <ComboBox
-                            ItemsSource="{Binding Tags}"
+                            ItemsSource="{Binding Tags.Items}"
                             SelectedItem="{Binding [Tag]}"
                             PlaceholderText="Смысловая область"
                             HorizontalAlignment="Stretch" />
@@ -94,7 +94,7 @@
                             Margin="0,8,0,0" />
                         <controls:AndecrComboBox
                             behaviors:FrozenBehavior.FieldName="PartOfSpeech"
-                            ItemsSource="{Binding PartsOfSpeech}"
+                            ItemsSource="{Binding PartsOfSpeech.Items}"
                             SelectedItem="{Binding [PartOfSpeech]}"
                             Placeholder="Выберите часть речи"
                             ShowFreezeButton="True"
@@ -106,7 +106,7 @@
                         <controls:MarkerList
                             x:Name="MarkerListControl"
                             HorizontalAlignment="Left"
-                            MarkerItems="{Binding Markers}"
+                            MarkerItems="{Binding Markers.Items}"
                             MarkersString="{Binding [Marker], Mode=OneWayToSource}" />
 
                         <TextBlock

@@ -6,4 +6,5 @@ public static class Constants
    public const string LearningTermMarkerEnd = "</span>";
    public const string TranscriptionSuperScriptStart = "<sup>";
    public const string TranscriptionSuperScriptEnd = "</sup>";
+   public const string ApplicationName = "andetor";
 }

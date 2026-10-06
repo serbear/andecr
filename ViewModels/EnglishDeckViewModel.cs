@@ -6,8 +6,6 @@ using andecr.Services.DeckExport;
 using andecr.Services.Text;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
-using DynamicData;
-using DynamicData.Binding;
 using ReactiveUI;
 
 namespace andecr.ViewModels;
@@ -130,18 +128,6 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
 
     private int _selectedTabIndex;
 
-    private readonly SourceList<string> _tagsSource = new(); 
-    private readonly SourceList<string> _partOfSpeechSource = new(); 
-    private readonly SourceList<string> _markersSource = new(); 
-    
-    private readonly ReadOnlyObservableCollection<string> _tags;
-    private readonly ReadOnlyObservableCollection<string> _partOfSpeech;
-    private readonly ReadOnlyObservableCollection<string> _markers;
-    
-    private bool _isLoadingTags;
-    private bool _isLoadingPartOfSpeech;
-    private bool _isLoadingMarkers;
-    
     private readonly ObservableAsPropertyHelper<bool> _isSorted;
     private string _selectedTag;
     
@@ -182,22 +168,7 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
         _mainVm = mainVm;
 
         // Заполнение списков данными
-        _tagsSource.Connect()
-            .Sort(SortExpressionComparer<string>.Ascending(t => t))
-            .Bind(out _tags)
-            .Subscribe();
-        _partOfSpeechSource.Connect()
-            .Sort(SortExpressionComparer<string>.Ascending(t => t))
-            .Bind(out _partOfSpeech)
-            .Subscribe();
-        _markersSource.Connect()
-            .Sort(SortExpressionComparer<string>.Ascending(t => t))
-            .Bind(out _markers)
-            .Subscribe();
-        
-        _ = LoadTagsAsync();
-        _ = LoadPartOfSpeechAsync();
-        _ = LoadMarkersAsync();
+        _ = InitializeOptionListsAsync();
 
         // Кнопка редактора: остаётся на текущем экране редактора
         EditorCommand = ReactiveCommand.Create(() => { });
@@ -417,130 +388,75 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
             this.RaisePropertyChanged();
         }
     }
-    public bool IsLoadingTags
-    {
-        get => _isLoadingTags;
-        set => this.RaiseAndSetIfChanged(ref _isLoadingTags, value);
-    }
-
-    public bool IsLoadingPartOfSpeech
-    {
-        get => _isLoadingPartOfSpeech;
-        set => this.RaiseAndSetIfChanged(ref _isLoadingPartOfSpeech, value);
-    }
-    public bool IsLoadingMarkers
-    {
-        get => _isLoadingMarkers;
-        set => this.RaiseAndSetIfChanged(ref _isLoadingMarkers, value);
-    }
     public string SelectedTag
     {
         get => _selectedTag;
         set => this.RaiseAndSetIfChanged(ref _selectedTag, value);
     }
     
-    private async Task LoadTagsAsync()
+    /// <summary>
+    /// Paths of the option-list files.
+    /// </summary>
+    private static class OptionFiles
     {
-        IsLoadingTags = true;
-        
+        public static readonly string Tags = AppFileService.GetFilePath("tags.txt");
+        public static readonly string PartsOfSpeech = AppFileService.GetFilePath("parts_of_speech.txt");
+        public static readonly string Markers = AppFileService.GetFilePath("markers.txt");
+    }
+
+    /// <summary>
+    /// Loads all option lists in parallel. Failures are isolated per list:
+    /// one broken file does not prevent the others from loading.
+    /// </summary>
+    private Task InitializeOptionListsAsync()
+    {
+        return Task.WhenAll(
+            LoadSafelyAsync(Tags),
+            LoadSafelyAsync(PartsOfSpeech),
+            LoadSafelyAsync(Markers));
+    }
+
+    /// <summary>
+    /// Fire-and-forget boundary: <see cref="OptionListViewModel.LoadAsync"/> throws, this wrapper logs.
+    /// </summary>
+    private static async Task LoadSafelyAsync(OptionListViewModel list)
+    {
         try
         {
-            // Загружаем данные.
-            var loadedTags = await TextOptionListLoader.LoadAsync("Assets/tags.txt");
-            
-            // Добавляем все теги в SourceList (DynamicData автоматически отсортирует их)
-            // Edit нужно вызывать в UI-потоке (что и происходит после await)
-            _tagsSource.Edit(list =>
-            {
-                list.Clear();
-                list.AddRange(loadedTags);
-            });
+            await list.LoadAsync();
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Ошибка загрузки тегов: {ex.Message}");
-        }
-        finally
-        {
-            IsLoadingTags = false;
+            Console.WriteLine($"Ошибка загрузки '{list.FilePath}': {ex.Message}");
         }
     }
-    
-    private async Task LoadPartOfSpeechAsync()
-    {
-        IsLoadingPartOfSpeech = true;
-        
-        try
-        {
-            var loadedPartOfSpeech = await TextOptionListLoader.LoadAsync("Assets/parts_of_speech.txt");
-            
-            _partOfSpeechSource.Edit(list =>
-            {
-                list.Clear();
-                list.AddRange(loadedPartOfSpeech);
-            });
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Ошибка загрузки списка частей речи: {ex.Message}");
-        }
-        finally
-        {
-            IsLoadingPartOfSpeech = false;
-        }
-    }
-    
-    private async Task LoadMarkersAsync()
-    {
-        IsLoadingMarkers = true;
-        
-        try
-        {
-            var loadedMarkers = await TextOptionListLoader.LoadAsync("Assets/markers.txt");
-            
-            _markersSource.Edit(list =>
-            {
-                list.Clear();
-                list.AddRange(loadedMarkers);
-            });
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Ошибка загрузки списка маркеров: {ex.Message}");
-        }
-        finally
-        {
-            IsLoadingMarkers = false;
-        }
-    }
-    
+
     // Метод для добавления нового тега (динамическое обновление)
     public void AddTag(string tag)
     {
-        _tagsSource.Add(tag);
+        Tags.Add(tag);
     }
 
     // Метод для удаления тега
     public void RemoveTag(string tag)
     {
-        _tagsSource.Remove(tag);
+        Tags.Remove(tag);
     }
     
     /// <summary>
-    /// Gets the collection of available tags, loaded from Assets/tags.txt.
+    /// Gets the available tags, loaded from Assets/tags.txt. Bind to <c>Tags.Items</c>.
     /// </summary>
-    //public ObservableCollection<string> Tags { get; } = [];
-    public ReadOnlyObservableCollection<string> Tags => _tags;
+    public OptionListViewModel Tags { get; } = new(OptionFiles.Tags);
 
     /// <summary>
-    /// Gets the collection of available parts of speech, loaded from Assets/parts_of_speech.txt.
+    /// Gets the available parts of speech, loaded from Assets/parts_of_speech.txt. Bind to <c>PartsOfSpeech.Items</c>.
     /// </summary>
-    public ReadOnlyObservableCollection<string> PartsOfSpeech => _partOfSpeech; //{ get; } = [];
+    public OptionListViewModel PartsOfSpeech { get; } = new(OptionFiles.PartsOfSpeech);
 
     /// <summary>
-    /// Gets the collection of available markers, loaded from Assets/Markers.txt.
+    /// Gets the available markers, loaded from Assets/markers.txt. Bind to <c>Markers.Items</c>.
     /// </summary>
-    public ReadOnlyObservableCollection<string> Markers => _markers; //{ get; } = [];
+    public OptionListViewModel Markers { get; } = new(OptionFiles.Markers);
 
     /// <summary>
     /// Gets the collection of available CEFR levels (A1, A2, B1, B2, C1, C2).
@@ -724,6 +640,8 @@ public class EnglishDeckViewModel : ViewModelBase, IDeckEditorViewModel, IHasRig
     // Очистка ресурсов
     public void Dispose()
     {
-        _tagsSource.Dispose();
+        Tags.Dispose();
+        PartsOfSpeech.Dispose();
+        Markers.Dispose();
     }
 }
