@@ -1,38 +1,34 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using Avalonia.Platform;
 
 namespace andecr.Services;
 
 /// <summary>
-/// Загружает списки допустимых значений (тегов, частей речи, маркеров и т.п.)
-/// из текстовых файлов, упакованных в приложение как ресурсы Avalonia
-/// (<c>Assets/*.txt</c>). Каждая строка файла — одно значение списка.
+/// Loads lists of allowed values (tags, parts of speech, markers, etc.)
+/// from text files bundled with the application as Avalonia resources
+/// (<c>Assets/*.txt</c>). Each line in the file is a single list value.
 /// </summary>
 public static class TextOptionListLoader
 {
     /// <summary>
-    /// Читает файл вида <c>avares://andecr/Assets/Tags.txt</c> и возвращает
-    /// непустые строки без начальных/конечных пробелов.
+    /// Reads a resource at <c>avares://andecr/Assets/filename.txt</c> and returns
+    /// the non-empty, trimmed lines. Returns an empty list if the resource does not exist.
     /// </summary>
     /// <param name="assetPath">
-    /// Путь к ресурсу относительно сборки, например <c>Assets/Tags.txt</c>.
+    /// Path to the resource relative to the assembly, e.g. <c>Assets/filename.txt</c>.
     /// </param>
-    public static IReadOnlyList<string> Load(string assetPath)
+    /// <returns>A read-only list of the file's non-empty, trimmed lines.</returns>
+    public static async Task<IReadOnlyList<string>> LoadAsync(string assetPath)
     {
         var uri = new Uri($"avares://andecr/{assetPath}");
 
         if (!AssetLoader.Exists(uri))
-            return Array.Empty<string>();
+            return [];
 
-        using var stream = AssetLoader.Open(uri);
+        await using var stream = AssetLoader.Open(uri);
         using var reader = new StreamReader(stream);
 
         var lines = new List<string>();
-        string? line;
-        while ((line = reader.ReadLine()) != null)
+        while (await reader.ReadLineAsync() is { } line)
         {
             var trimmed = line.Trim();
             if (trimmed.Length > 0)

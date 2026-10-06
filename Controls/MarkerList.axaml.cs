@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using andecr.ViewModels;
 using Avalonia;
@@ -26,8 +25,8 @@ public partial class MarkerList : UserControl
     /// <summary>
     /// Identifies the <see cref="MarkerItems"/> dependency property.
     /// </summary>
-    public static readonly StyledProperty<ObservableCollection<string>> MarkerItemsProperty =
-        AvaloniaProperty.Register<MarkerList, ObservableCollection<string>>("MarkerItems");
+    public static readonly StyledProperty<IReadOnlyList<string>> MarkerItemsProperty =
+        AvaloniaProperty.Register<MarkerList, IReadOnlyList<string>>(nameof(MarkerItems));
 
     /// <summary>
     /// Identifies the <see cref="MarkersString"/> dependency property.
@@ -73,7 +72,7 @@ public partial class MarkerList : UserControl
     /// accordingly, excluding any markers already present in <see cref="MarkerListViewModel.SelectedMarkers"/>.
     /// The control does not directly modify this collection.
     /// </remarks>
-    public ObservableCollection<string> MarkerItems
+    public IReadOnlyList<string> MarkerItems
     {
         get => GetValue(MarkerItemsProperty);
         set => SetValue(MarkerItemsProperty, value);
@@ -196,14 +195,18 @@ public partial class MarkerList : UserControl
     /// </remarks>
     private void OnMarkerItemsPropertyChanged(AvaloniaPropertyChangedEventArgs e)
     {
-        if (e.OldValue is ObservableCollection<string> oldItems)
+        if (e.OldValue is INotifyCollectionChanged oldNotifying)
         {
-            oldItems.CollectionChanged -= OnMarkerItemsSourceChanged;
+            oldNotifying.CollectionChanged -= OnMarkerItemsSourceChanged;
         }
 
-        if (e.NewValue is ObservableCollection<string> newItems)
+        if (e.NewValue is IReadOnlyList<string> newItems)
         {
-            newItems.CollectionChanged += OnMarkerItemsSourceChanged;
+            if (newItems is INotifyCollectionChanged newNotifying)
+            {
+                newNotifying.CollectionChanged += OnMarkerItemsSourceChanged;
+            }
+
             _viewModel.SetAvailableMarkers(newItems);
         }
         else
@@ -223,7 +226,7 @@ public partial class MarkerList : UserControl
     /// </remarks>
     private void OnMarkerItemsSourceChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        if (sender is ObservableCollection<string> items)
+        if (sender is IReadOnlyList<string> items)
         {
             _viewModel.SetAvailableMarkers(items);
         }
