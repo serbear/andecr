@@ -18,6 +18,8 @@ namespace andecr.ViewModels.Controls;
 /// </remarks>
 public class MarkerListViewModel : ReactiveObject, IMarkerListViewModel
 {
+    private const string MarkerSeparator = ", ";
+
     /// <summary>
     /// The full pool of markers available to this control, in the order they should be displayed.
     /// Used to restore removed markers to <see cref="AvailableMarkers"/> at the correct position.
@@ -26,6 +28,18 @@ public class MarkerListViewModel : ReactiveObject, IMarkerListViewModel
 
     /// <summary>Backing field for <see cref="MarkersString"/>.</summary>
     private string _markersString = string.Empty;
+
+    /// <summary>
+    /// Lookup of marker to its position in <see cref="_markerOrder"/>.
+    /// Used as the sort key when restoring a marker to <see cref="AvailableMarkers"/>, so the correct
+    /// insertion point is found with a binary search instead of repeated <see cref="List{T}.IndexOf(T)"/> calls.
+    /// </summary>
+    /// <remarks>
+    /// Rebuilt in <see cref="SetAvailableMarkers"/> whenever the pool changes. If the pool contains duplicates,
+    /// the first occurrence determines the marker's position. Markers absent from this dictionary are not part
+    /// of the known order and are appended to the end of <see cref="AvailableMarkers"/>.
+    /// </remarks>
+    private readonly Dictionary<string, int> _orderIndex = new();
 
     /// <summary>Backing field for <see cref="SelectedMarkerToAdd"/>.</summary> 
     private string? _selectedMarkerToAdd;
@@ -88,12 +102,30 @@ public class MarkerListViewModel : ReactiveObject, IMarkerListViewModel
         _markerOrder.Clear();
         _markerOrder.AddRange(markers);
 
+        // Update the order index of markers
+        _orderIndex.Clear();
+        for (var i = 0; i < _markerOrder.Count; i++)
+        {
+            _orderIndex.TryAdd(_markerOrder[i], i);
+        }
+
+        RebuildAvailableMarkers();
+    }
+
+    /// <summary>
+    /// Repopulates <see cref="AvailableMarkers"/> from <see cref="_markerOrder"/>, skipping selected markers.
+    /// Keeps the original display order without reloading the source list.
+    /// </summary>
+    private void RebuildAvailableMarkers()
+    {
+        var selected = SelectedMarkers.ToHashSet();
         AvailableMarkers.Clear();
-        foreach (var marker in _markerOrder.Where(marker => !SelectedMarkers.Contains(marker)))
+        foreach (var marker in _markerOrder.Where(marker => !selected.Contains(marker)))
         {
             AvailableMarkers.Add(marker);
         }
     }
+
 
     /// <summary>
     /// Clears all currently selected markers, returning them to the "add marker" dropdown.
@@ -110,15 +142,9 @@ public class MarkerListViewModel : ReactiveObject, IMarkerListViewModel
         {
             return;
         }
-        foreach (var marker in SelectedMarkers)
-        {
-            if (!AvailableMarkers.Contains(marker))
-            {
-                AvailableMarkers.Add(marker);
-            }
-        }
 
         SelectedMarkers.Clear();
+        RebuildAvailableMarkers();
     }
 
     /// <summary>
@@ -149,25 +175,27 @@ public class MarkerListViewModel : ReactiveObject, IMarkerListViewModel
     /// </remarks>
     private void RestoreAvailableMarker(string marker)
     {
-        var orderIndex = _markerOrder.IndexOf(marker);
-        if (orderIndex < 0)
+        if (!_orderIndex.TryGetValue(marker, out var orderIndex))
         {
             AvailableMarkers.Add(marker);
             return;
         }
 
-        var insertAt = AvailableMarkers.Count;
-        for (var i = 0; i < AvailableMarkers.Count; i++)
+        int lo = 0, hi = AvailableMarkers.Count;
+        while (lo < hi)
         {
-            if (_markerOrder.IndexOf(AvailableMarkers[i]) <= orderIndex)
+            var mid = (lo + hi) / 2;
+            if (_orderIndex.TryGetValue(AvailableMarkers[mid], out var midIndex) && midIndex <= orderIndex)
             {
-                continue;
+                lo = mid + 1;
             }
-            insertAt = i;
-            break;
+            else
+            {
+                hi = mid;
+            }
         }
 
-        AvailableMarkers.Insert(insertAt, marker);
+        AvailableMarkers.Insert(lo, marker);
     }
 
     /// <summary>
@@ -180,6 +208,9 @@ public class MarkerListViewModel : ReactiveObject, IMarkerListViewModel
     /// </remarks>
     private void OnSelectedMarkersChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        MarkersString = string.Join(",", SelectedMarkers);
+        MarkersString = string.Join(
+            MarkerSeparator,
+            SelectedMarkers
+        );
     }
 }
